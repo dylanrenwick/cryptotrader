@@ -25,7 +25,7 @@
 */
 
 include_once(dirname(__FILE__).'/../coinbase-pro.php');
-$g = new coinbaseExchange(CB_KEY,CB_SECRET,CB_PASSPHRASE);
+$g = new CoinbaseExchange(CB_KEY,CB_SECRET,CB_PASSPHRASE);
 
 // check arguments and stuff
 $args = getArgs(array('p','bw','g','sim','nib','pv','fip'));
@@ -74,7 +74,7 @@ while(1)
     $g->updatePrices($args['p']);
     $sellprice = $g->lastbidprice*$coins;
     $profit = round($sellprice - $args['bw'],2);
-    echo getTimestamp()." Current worth: $sellprice\t Change: ".($profit > 0?'+':'')."$profit $currency\t\t\t\r";
+    echo getTimestamp()." Current worth: $sellprice\t Change: ".($profit > 0?'+':'')."$profit $currency\n";
     if($sellprice >= $sellworth)
     {
         echo "\n [!!] Coins gained {$args['g']}%, will sell now for $sellprice. Made $profit $currency profit!\n";
@@ -91,7 +91,7 @@ while(1)
         while($g->lastbidprice > $waitingforprice)
         {
             $g->updatePrices($args['p']);
-            echo getTimestamp()." Current price: {$g->lastbidprice}\t Waiting for: $waitingforprice $currency per $crypto\t\t\r";
+            echo getTimestamp()." Current price: {$g->lastbidprice}\t Waiting for: $waitingforprice $currency per $crypto\n";
             sleep(120);
         }
 
