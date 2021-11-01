@@ -74,7 +74,7 @@ while(1)
     $g->updatePrices($args['p']);
     $sellprice = $g->lastbidprice*$coins;
     $profit = round($sellprice - $args['bw'],2);
-    echo " Current worth: $sellprice\t Change: ".($profit > 0?'+':'')."$profit $currency\t\t\t\r";
+    echo getTimestamp()." Current worth: $sellprice\t Change: ".($profit > 0?'+':'')."$profit $currency\t\t\t\r";
     if($sellprice >= $sellworth)
     {
         echo "\n [!!] Coins gained {$args['g']}%, will sell now for $sellprice. Made $profit $currency profit!\n";
@@ -91,7 +91,7 @@ while(1)
         while($g->lastbidprice > $waitingforprice)
         {
             $g->updatePrices($args['p']);
-            echo " Waiting since ".translateSecondsToNiceString(time()-$starttime)."\t Current price: {$g->lastbidprice}\t Waiting for: $waitingforprice $currency per $crypto\t\t\r";
+            echo getTimestamp()." Current price: {$g->lastbidprice}\t Waiting for: $waitingforprice $currency per $crypto\t\t\r";
             sleep(120);
         }
 
@@ -127,34 +127,40 @@ while(1)
 }
 
 function translateSecondsToNiceString($secs,$withseconds=false)
-        {
-            $units = array(
-                    "Year"   => 365*24*3600,
-                    "Month"   => 30*24*3600,
-                    "Week"   => 7*24*3600,
-                    "Day"    =>   24*3600,
-                    "Hour"   =>      3600,
-                    "Minute" =>        60,
-                    "Second" =>        1,
-            );
-            
-            if(!$withseconds)
-                unset($units["Second"]);
+{
+    $units = array(
+            "Year"   => 365*24*3600,
+            "Month"   => 30*24*3600,
+            "Week"   => 7*24*3600,
+            "Day"    =>   24*3600,
+            "Hour"   =>      3600,
+            "Minute" =>        60,
+            "Second" =>        1,
+    );
+    
+    if(!$withseconds)
+        unset($units["Second"]);
 
-            if ( $secs == 0 ) return "0 Seconds";
+    if ( $secs == 0 ) return "0 Seconds";
 
-            $s = "";
+    $s = "";
 
-            foreach ( $units as $name => $divisor ) {
-                    if ( $quot = intval($secs / $divisor) ) {
-                            $s .= "$quot $name";
-                            $s .= (abs($quot) > 1 ? "s" : "") . ", ";
-                            $secs -= $quot * $divisor;
-                    }
+    foreach ( $units as $name => $divisor ) {
+            if ( $quot = intval($secs / $divisor) ) {
+                    $s .= "$quot $name";
+                    $s .= (abs($quot) > 1 ? "s" : "") . ", ";
+                    $secs -= $quot * $divisor;
             }
+    }
 
-            return substr($s, 0, -2);
-        }
+    return substr($s, 0, -2);
+}
+
+function getTimestamp()
+{
+	$time = new DateTime();
+	return '['.$time->format('Y-m-d H:i:s').']';
+}
 
 function renderUsage()
 {
