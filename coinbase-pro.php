@@ -224,7 +224,7 @@ class CoinbaseExchange
 
         curl_close($curl);
 
-        if(startsWith($resp,'Cannot')) return false;;
+        if(startsWith($resp,'Cannot')) return false;
 
 
         $json = json_decode($resp,true);
@@ -244,24 +244,6 @@ class CoinbaseExchange
 
         return base64_encode(hash_hmac("sha256", $what, base64_decode($this->secret), true));
     }
-}
-
-function getArgs($lookingfor)
-{
-    global $argv;
-    foreach($argv as $key=>$argument)
-    {
-        if(!substr($argument,0,1)=='-') continue;
-        $arg = trim(substr($argument,1));
-        if(in_array($arg,$lookingfor))
-        {
-            $args[$arg] = ((substr($argv[($key+1)],0,1)=='-'?true:$argv[($key+1)]));
-            if($args[$arg]===NULL)
-                $args[$arg] = true;
-        }
-    }
-
-    return $args;
 }
 
 function productStringToArr($string)

@@ -22,6 +22,7 @@
 *
 */
 
+include_once(dirname(__FILE__).'/../botutils.php');
 include_once(dirname(__FILE__).'/../coinbase-pro.php');
 $g = new CoinbaseExchange(CB_KEY,CB_SECRET,CB_PASSPHRASE);
 

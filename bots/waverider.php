@@ -24,6 +24,7 @@
 *
 */
 
+include_once(dirname(__FILE__).'/../botutils.php');
 include_once(dirname(__FILE__).'/../coinbase-pro.php');
 $g = new CoinbaseExchange(CB_KEY,CB_SECRET,CB_PASSPHRASE);
 
@@ -154,12 +155,6 @@ function translateSecondsToNiceString($secs,$withseconds=false)
     }
 
     return substr($s, 0, -2);
-}
-
-function getTimestamp()
-{
-	$time = new DateTime();
-	return '['.$time->format('Y-m-d H:i:s').']';
 }
 
 function renderUsage()
