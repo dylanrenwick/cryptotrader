@@ -7,3 +7,11 @@ date_default_timezone_set('UTC');
 define('CB_KEY','your key here');
 define('CB_SECRET','your secret here');
 define('CB_PASSPHRASE','your passphrase here');
+
+define('BOT_DIRECTORY', './bots/');
+define('BOT_INTERVAL', 5);
+
+define('LOG_FILE', false);
+define('LOG_STDOUT', true);
+define('LOG_LEVEL', 3);
+
