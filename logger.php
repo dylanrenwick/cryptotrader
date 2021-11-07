@@ -54,7 +54,7 @@ class Logger implements ILogger
 	private function logMessage($level, $message)
 	{
 		if ($this->logToTerminal && $this->terminalLogLevel >= $level) echo $message;
-		if ($this->logToFile && $this->fileLogLevel >= $level) fwrite($this->fileHandle, $message);
+		if ($this->logToFile && $this->fileHandle !== false && $this->fileLogLevel >= $level) fwrite($this->fileHandle, $message);
 	}
 
 	public function log($level, $message, $label = '')
