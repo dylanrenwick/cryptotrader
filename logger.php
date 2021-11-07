@@ -15,8 +15,11 @@ interface ILogger
 class Logger implements ILogger
 {
 	private $logToFile = LOG_FILE;
+	private $fileLogLevel = LOG_FILE_LEVEL;
 	private $logToTerminal = LOG_STDOUT;
-	private $logLevel = LOG_LEVEL;
+	private $terminalLogLevel = LOG_STDOUT_LEVEL;
+
+	private $fileHandle;
 
 	private $logLevels = array(
 		'CRIT',
@@ -27,26 +30,41 @@ class Logger implements ILogger
 		'DEBUG'
 	);
 
+	public function __construct()
+	{
+		if ($this->logToFile) {
+			$time = new DateTime();
+			$this->fileName = $this->logToFile.'cryptotrader-'.$time->format('Y-m-d');
+			if (file_exists($this->fileName.'.log')) {
+				$i = 2;
+				while (file_exists($this->fileName."_$i.log")) $i++;
+				$this->fileName .= "_$i";
+			}
+			$this->fileName .= '.log';
+			$this->fileHandle = fopen($this->fileName, 'c');
+		}
+	}
+
 	private function getTimestamp()
 	{
 		$time = new DateTime();
 		return $time->format('Y-m-d H:i:s');
 	}
 
-	private function logMessage($message)
+	private function logMessage($level, $message)
 	{
-		if ($this->logToTerminal) echo $message;
+		if ($this->logToTerminal && $this->terminalLogLevel >= $level) echo $message;
+		if ($this->logToFile && $this->fileLogLevel >= $level) fwrite($this->fileHandle, $message);
 	}
 
 	public function log($level, $message, $label = '')
 	{
-		if ($level > $this->logLevel) return;
 		$ts = $this->getTimestamp();
 		$lines = explode("\n", $message);
 		foreach($lines as $i=>$line) {
 			if ($i === 0) $header = $this->logLevels[$level]."\t$ts |".rpad($label, 3).'|>';
 			else if ($i === 1) $header = "\t".lpad('|'.rpad($label, 3).'|>', strlen($ts)+7);
-			$this->logMessage("$header\t$line\n");
+			$this->logMessage($level, "$header\t$line\n");
 		}
 	}
 
