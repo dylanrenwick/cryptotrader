@@ -12,6 +12,7 @@ define('BOT_DIRECTORY', './bots/');
 define('BOT_INTERVAL', 5);
 
 define('LOG_FILE', false);
+define('LOG_FILE_LEVEL', 5);
 define('LOG_STDOUT', true);
-define('LOG_LEVEL', 3);
+define('LOG_STDOUT_LEVEL', 3);
 
