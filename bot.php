@@ -17,7 +17,7 @@ abstract class Bot
 	protected $crypto;
 	protected $currency;
 
-    function __construct(CoinbaseExchange $cb, Logger $log, $p, $sim)
+    function __construct(CoinbaseExchange $cb, ILogger $log, $p, $sim)
     {
 		$this->cb = $cb;
 		$this->log = $log;
@@ -32,12 +32,14 @@ abstract class Bot
 
 	protected function sellCrypto($amount)
 	{
+		$this->log->alert("Selling $amount ".$this->crypto);
 		if ($this->sim) return;
 		$this->cb->marketSellCrypto($amount, $this->crypto.'-'.$this->currency);
 	}
 
 	protected function buyCrypto($amount)
 	{
+		$this->log->alert("Buying $amount ".$this->crypto);
 		if ($this->sim) return;
 		$this->cb->marketBuyCrypto($amount, $this->crypto.'-'.$this->currency);
 	}
@@ -84,20 +86,29 @@ $args = parseArgs(getArgs(), array(
     'sim' => array('required' => false, 'default' => false)
 ));
 
-$L->info('-= Cryptotrader '.VERSION.' =-');
+$L->alert('-= Cryptotrader '.VERSION.' =-');
 $L->debug('Args:'."\n".'botfile: '.$args['bot']."\n".'product: '.$args['p']);
-if ($args['sim']) $L->debug("-== SIMULATION ==-\nIn simulation mode, bots will run without\nactually spending money");
+if ($args['sim']) $L->alert("-== SIMULATION ==-\nIn simulation mode, bots will run without\nactually spending money");
 
-$cb = new CoinbaseExchange(CB_KEY, CB_SECRET, CB_PASSPHRASE);
+$L->info('Initializing API');
+$cb = new CoinbaseExchange(CB_KEY, CB_SECRET, CB_PASSPHRASE, $L->createLabelledLogger('API'));
+$cb->updatePrices($args['p']);
+$L->alert('API initialized.');
 
+$L->info('Initializing bot: '.$args['bot']);
 require BOT_DIRECTORY.$args['bot'].'.php';
 if (!is_subclass_of($args['bot'], 'Bot')) {
 	exit($args['bot'].'.php does not contain a valid bot class!'."\n\t".'Does not extend Bot');
 }
 
-$bot = new $args['bot']($cb, $L, $args['p'], $args['sim']);
+$bot = new $args['bot']($cb, $L->createLabelledLogger('BOT'), $args['p'], $args['sim']);
+$L->debug('Parsing bot args');
+$bot->parseArgs(getArgs());
+$L->debug('Running bot startup');
+$bot->startup();
+$L->alert('Bot initialized.');
 
-
+$L->alert('Running');
 while(1) {
 	$cb->updatePrices($args['p']);
 
