@@ -28,7 +28,16 @@ class Waverider extends Bot
 		$this->buyOnStart = !$args['nib'];
 		if (!$this->buyOnStart) $this->priceOnStart = floatval($args['fip']);
 
+		$argsLog = 'Args:'."\n".
+			'budget: $'.$args['bw']."\n".
+			'gain: '.($this->gain * 100)."%\n".
+			'plumet val: '.($this->plumetValue * 100)."%\n".
+			'buy on start: '.($this->buyOnStart ? 'true': 'false');
+		if (!$this->buyOnStart) $argsLog .= "\n".'initial price: $'.$this->priceOnStart;
+		$this->log->debug($argsLog);
+
 		$this->sellTarget = round($this->budget * $this->gain + $this->budget, 4);
+		$this->log->debug('Intial sell target price is '.$this->sellTarget);
 	}
 
 	public function startup()
@@ -63,10 +72,12 @@ class Waverider extends Bot
 	private function handleSell()
 	{
 		$this->priceSoldAt = $this->cb->lastbidprice;
+		$this->log->debug('Current sell price: $'.$this->priceSoldAt);
 		$currentSellValue = $this->priceSoldAt * $this->coinsHeld;
 		$profit = $currentSellValue - $this->budget;
 		$this->log->info('Can sell '.$this->coinsHeld.' '.$this->crypto." for $$currentSellValue, profiting $$profit");
 		if ($profit >= $this->budget * $this->gain) {
+			$this->log->debug("Profit $$profit is greater than target of $".($this->budget * $this->gain).'. Attempting to sell.');
 			$this->sellCrypto($this->coinsHeld);
 			$this->coinsHeld = false;
 		} else {
@@ -80,6 +91,7 @@ class Waverider extends Bot
 		$this->log->info("Can buy at $$buyPrice.");
 		if ($buyPrice <= $targetPrice) {
 			$this->coinsHeld = round($this->budget / $buyPrice, 7);
+			$this->log->debug("Price is $$buyPrice, below target of $$targetPrice. Attempting to buy ".$this->coinsHeld.' '.$this->crypto);
 			$this->buyCrypto($this->coinsHeld);
 		} else {
 			$this->log->info("Waiting for $$targetPrice");
