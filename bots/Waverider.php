@@ -11,6 +11,13 @@ class Waverider extends Bot
 	private $priceSoldAt;
 	private $coinsHeld;
 
+	private $lastUpdate;
+	private $startTime;
+
+	private $highestPrice = 0;
+	private $lowestPrice = PHP_INT_MAX;
+	private $transactionCount = 0;
+
 	public function parseArgs($args)
 	{
 		$args = parseArgs($args, array(
@@ -56,6 +63,9 @@ class Waverider extends Bot
 		} else {
 			$this->log->info('Buy on start is disabled, assuming coins already bought');
 		}
+
+		$this->lastUpdate = time();
+		$this->startTime = new DateTime();
 	}
 
 	public function update()
@@ -67,11 +77,33 @@ class Waverider extends Bot
 			$this->log->info('Currencly have no coins. Looking to buy.');
 			$this->handleBuy();
 		}
+
+		if (time() - $this->lastUpdate >= BOT_ALERT_INTERVAL) {
+			$this->alertUpdate();
+		}
+	}
+
+	private function alertUpdate()
+	{
+		$this->lastUpdate = time();
+
+		$alertMsg = 'Waverider has been running since '.$this->startTime->format('Y-m-d H:i:s')."\n".
+			'Stats for last '.(BOT_ALERT_INTERVAL/(60*60)).' hours:'."\n".
+			'Highest price seen: $'.$this->highestPrice."\n".
+			'Lowest price seen: $'.$this->lowestPrice."\n".
+			'Transactions made: '.$this->transactionCount."\n";
+		$this->log->alert($alertMsg);
+
+		$this->highestPrice = 0;
+		$this->lowestPrice = PHP_INT_MAX;
+		$this->transactionCount = 0;
 	}
 
 	private function handleSell()
 	{
 		$this->priceSoldAt = $this->cb->lastbidprice;
+		$this->highestPrice = max($this->highestPrice, $this->priceSoldAt);
+		$this->lowestPrice = min($this->lowestPrice, $this->priceSoldAt);
 		$this->log->debug('Current sell price: $'.$this->priceSoldAt);
 		$currentSellValue = $this->priceSoldAt * $this->coinsHeld;
 		$profit = $currentSellValue - $this->budget;
@@ -79,6 +111,7 @@ class Waverider extends Bot
 		if ($profit >= $this->budget * $this->gain) {
 			$this->log->debug("Profit $$profit is greater than target of $".($this->budget * $this->gain).'. Attempting to sell.');
 			$this->sellCrypto($this->coinsHeld);
+			$this->transactionCount++;
 			$this->coinsHeld = false;
 		} else {
 			$this->log->info('Waiting until profit of $'.($this->budget * $this->gain));
@@ -87,12 +120,15 @@ class Waverider extends Bot
 	private function handleBuy()
 	{
 		$buyPrice = $this->cb->lastaskprice;
+		$this->highestPrice = max($this->highestPrice, $buyPrice);
+		$this->lowestPrice = min($this->lowestPrice, $buyPrice);
 		$targetPrice = round($this->priceSoldAt * (1 - $this->plumetValue), 4);
 		$this->log->info("Can buy at $$buyPrice.");
 		if ($buyPrice <= $targetPrice) {
 			$this->coinsHeld = round($this->budget / $buyPrice, 7);
 			$this->log->debug("Price is $$buyPrice, below target of $$targetPrice. Attempting to buy ".$this->coinsHeld.' '.$this->crypto);
 			$this->buyCrypto($this->coinsHeld);
+			$this->transactionCount++;
 		} else {
 			$this->log->info("Waiting for $$targetPrice");
 		}

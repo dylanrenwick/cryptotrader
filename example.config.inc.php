@@ -10,6 +10,7 @@ define('CB_PASSPHRASE','your passphrase here');
 
 define('BOT_DIRECTORY', './bots/');
 define('BOT_INTERVAL', 5);
+define('BOT_ALERT_INTERVAL', (60*60)*12);
 
 define('LOG_FILE', false);
 define('LOG_FILE_LEVEL', 5);
