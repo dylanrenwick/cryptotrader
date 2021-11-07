@@ -11,7 +11,7 @@ class Waverider extends Bot
 	private $priceSoldAt;
 	private $coinsHeld;
 
-	function parseArgs($args)
+	public function parseArgs($args)
 	{
 		$args = parseArgs($args, array(
 			'bw' => array('required' => true),
@@ -31,7 +31,7 @@ class Waverider extends Bot
 		$this->sellTarget = round($this->budget * $this->gain + $this->budget, 4);
 	}
 
-	function startup()
+	public function startup()
 	{
 		$this->log->alert('WaveRider starting...');
 		$this->log->info('Trading '.$this->crypto.'-'.$this->currency);
@@ -49,7 +49,7 @@ class Waverider extends Bot
 		}
 	}
 
-	function update()
+	public function update()
 	{
 		if ($this->coinsHeld !== false) {
 			$this->log->info('Currently have '.$this->coinsHeld.' '.$this->crypto.'. Looking to sell.');
@@ -60,7 +60,7 @@ class Waverider extends Bot
 		}
 	}
 
-	function handleSell()
+	private function handleSell()
 	{
 		$this->priceSoldAt = $this->cb->lastbidprice;
 		$currentSellValue = $this->priceSoldAt * $this->coinsHeld;
@@ -73,7 +73,7 @@ class Waverider extends Bot
 			$this->log->info('Waiting until profit of $'.($this->budget * $this->gain));
 		}
 	}
-	function handleBuy()
+	private function handleBuy()
 	{
 		$buyPrice = $this->cb->lastaskprice;
 		$targetPrice = round($this->priceSoldAt * (1 - $this->plumetValue), 4);

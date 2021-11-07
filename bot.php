@@ -17,7 +17,7 @@ abstract class Bot
 	protected $crypto;
 	protected $currency;
 
-    function __construct(CoinbaseExchange $cb, ILogger $log, $p, $sim)
+    public function __construct(CoinbaseExchange $cb, ILogger $log, $p, $sim)
     {
 		$this->cb = $cb;
 		$this->log = $log;
@@ -27,8 +27,8 @@ abstract class Bot
 		$this->sim = $sim;
     }
 
-	abstract function parseArgs($args);
-	abstract function update();
+	public abstract function parseArgs($args);
+	public abstract function update();
 
 	protected function sellCrypto($amount)
 	{
