@@ -1,6 +1,6 @@
 <?php
 
-class TestBot extends Bot
+class Waverider extends Bot
 {
 	private $budget;
 	private $gain;
