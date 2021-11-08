@@ -25,21 +25,23 @@ class CoinbaseExchange
     
     private $askprices;
     public $lastaskprice=0;
-    private $highestask=0;
+	private $highestask=0;
 
-    public function __construct($key, $secret, $passphrase, $sandbox=false) {
+	private $log;
+
+    public function __construct($key, $secret, $passphrase, ILogger $logger) {
         $this->key = $key;
         $this->secret = $secret;
         $this->passphrase = $passphrase;
 
-        if($sandbox===true)
-            $this->apiurl = "https://api-public.sandbox.pro.coinbase.com";
+		$this->log = $logger;
     }
 
     function updatePrices($product='BTC-USD')
-    {
+	{
+		$this->log->info('Updating prices for '.$product);
         $data = $this->makeRequest('/products/'.$product.'/ticker');
-        if($data===false){ echo " [X] Error getting products\n";return false;}
+        if($data===false){ $this->log->warn("Error getting products");return false;}
         $a = explode('-',$product);
         $crypto=$a[0];
         $currency=$a[1];
@@ -75,10 +77,10 @@ class CoinbaseExchange
         $crypto=$a[0];
         $currency=$a[1];;
 
-        echo "[i] Price info for $product\n-----------\n";
-        echo " [i] Ask price: \t$this->lastaskprice $currency\n";
-        echo " [i] Bid price: \t$this->lastbidprice $currency\n";
-        echo " [i] Spread: \t\t".($this->lastaskprice-$this->lastbidprice)." $currency\n";
+        $this->log->info("Price info for $product\n-----------\n".
+			"\tAsk price: \t$this->lastaskprice $currency\n".
+			"\tBid price: \t$this->lastbidprice $currency\n".
+			"\tSpread: \t".($this->lastaskprice-$this->lastbidprice)." $currency");
     }
 
     function printAccountInfo()
@@ -114,7 +116,8 @@ class CoinbaseExchange
     }
 
     function marketSellCrypto($amount,$product='BTC-USD')
-    {
+	{
+		$this->log->info("Making sell request for $amount $product");
         $result = $this->makeRequest('/orders',array(   'size'=>$amount,
                                                         'side'=>'sell',
                                                         'type'=>'market',
@@ -137,6 +140,7 @@ class CoinbaseExchange
 
     function marketBuyCrypto($amount,$product='BTC-USD')
     {
+		$this->log->info("Making buy request for $amount $product");
         $result = $this->makeRequest('/orders',array(   'size'=>$amount,
                                                         'side'=>'buy',
                                                         'type'=>'market',
@@ -230,7 +234,7 @@ class CoinbaseExchange
         $json = json_decode($resp,true);
         if($json['message'])
         {
-            echo " [X] Error while making a call. Message: ".$json['message']."\n";
+            $this->log->error("Error while making a call. Message:\n\t".$json['message']);
             return false;
         }
         else return $json;
