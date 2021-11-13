@@ -97,8 +97,8 @@ if (!file_exists($args['cfg'])) {
 	$L->crit('Could not load bot config: File not found');
 }
 require $args['cfg'];
-if (BOT_CONFIG === null) $L->crit('Count not load bot config: BOT_CONFIG not defined');
-if (!is_array(BOT_CONFIG)) $L->crit('Could not load bot config: Expected BOT_CONFIG to be array');
+if ($BOT_CONFIG === null) $L->crit('Count not load bot config: BOT_CONFIG not defined');
+if (!is_array($BOT_CONFIG)) $L->crit('Could not load bot config: Expected BOT_CONFIG to be array');
 
 $L->info('Initializing API');
 $cb = new CoinbaseExchange(CB_KEY, CB_SECRET, CB_PASSPHRASE, $L->createLabelledLogger('API'));
@@ -111,7 +111,7 @@ if (!is_subclass_of($args['bot'], 'Bot')) $L->crit($args['bot'].'.php does not c
 
 $bot = new $args['bot']($cb, $L->createLabelledLogger('BOT'), $args['sim'], $args['p']);
 $L->debug('Parsing bot config');
-$bot->parseConfig(BOT_CONFIG);
+$bot->parseConfig($BOT_CONFIG);
 $L->debug('Running bot startup');
 $bot->startup();
 $L->alert('Bot initialized.');
@@ -119,6 +119,14 @@ $L->alert('Bot initialized.');
 $L->alert('Running');
 while(1) {
 	$cb->updatePrices($args['p']);
+
+	$L->debug('Checking for config updates...');
+	$temp = $BOT_CONFIG;
+	require $args['cfg'];
+	if ($temp != $BOT_CONFIG) {
+		$L->alert('Detected config change, updating bot config');
+		$bot->parseConfig($BOT_CONFIG);
+	}
 
 	$bot->update();
 
