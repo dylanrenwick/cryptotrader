@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', 'v0.1.0');
+define('VERSION', 'v0.2.3');
 
 require_once './coinbase-pro.php';
 require_once './config.inc.php';
