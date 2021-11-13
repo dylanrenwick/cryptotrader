@@ -32,11 +32,13 @@ class Logger implements ILogger
 		'DEBUG'
 	);
 
-	public function __construct()
+	public function __construct(
+		private $botName = 'cryptotrader',
+	)
 	{
 		if ($this->logToFile) {
 			$time = new DateTime();
-			$this->fileName = $this->logToFile.'cryptotrader-'.$time->format('Y-m-d');
+			$this->fileName = "{$this->logToFile}$botName-{$time->format('Y-m-d')}";
 			if (file_exists($this->fileName.'.log')) {
 				$i = 2;
 				while (file_exists($this->fileName."_$i.log")) $i++;

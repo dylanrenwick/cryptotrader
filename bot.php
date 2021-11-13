@@ -6,11 +6,6 @@ require_once './coinbase-pro.php';
 require_once './config.inc.php';
 require_once './logger.php';
 
-$L = new Logger();
-$L->debug('Logger initialized.');
-set_error_handler(array($L, 'handleError'), E_ALL);
-$L->debug('Logger now catching PHP errors.');
-
 abstract class Bot
 {
 	protected $crypto;
@@ -88,6 +83,13 @@ $args = parseArgs(getArgs(), array(
 	'cfg' => array('required' => true),
 	'sim' => array('required' => false, 'default' => false),
 ));
+
+$botName = explode('.', $args['cfg']);
+$botName = $botName[0];
+$L = new Logger($botName);
+$L->debug('Logger initialized.');
+set_error_handler(array($L, 'handleError'), E_ALL);
+$L->debug('Logger now catching PHP errors.');
 
 $L->alert('-= Cryptotrader '.VERSION.' =-');
 $L->debug("Args:\nbotfile: {$args['bot']}\nproduct: {$args['p']}\nconfig: {$args['cfg']}");
