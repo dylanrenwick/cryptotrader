@@ -90,7 +90,11 @@ $args = parseArgs(getArgs(), array(
 ));
 
 $L->alert('-= Cryptotrader '.VERSION.' =-');
-$L->debug('Args:'."\n".'botfile: '.$args['bot']."\n".'config: '.$args['cfg']);
+$L->debug("Args:\nbotfile: {$args['bot']}\nproduct: {$args['p']}\nconfig: {$args['cfg']}");
+if ($args['sim']) {
+	$L->alert('-= [Simulation] =-');
+	$L->debug('In simulation mode, the bot will not send transactions to Coinbase.');
+}
 $L->info('Loading bot config from '.$args['cfg']);
 
 if (!file_exists($args['cfg'])) {
