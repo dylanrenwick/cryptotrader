@@ -93,6 +93,7 @@ set_error_handler(array($L, 'handleError'), E_ALL);
 $L->debug('Logger now catching PHP errors.');
 
 $L->alert('-= Cryptotrader '.VERSION.' =-');
+$L->alert('--==={ '.$botName.' }===--');
 $L->debug("Args:\nbotfile: {$args['bot']}\nproduct: {$args['p']}\nconfig: {$args['cfg']}");
 if ($args['sim']) {
 	$L->alert('-= [Simulation] =-');
