@@ -7,37 +7,38 @@ require_once './config.inc.php';
 require_once './logger.php';
 
 $L = new Logger();
+$L->debug('Logger initialized.');
+set_error_handler(array($L, 'handleError'), E_ALL);
+$L->debug('Logger now catching PHP errors.');
 
 abstract class Bot
 {
-	protected $cb;
-	protected $log;
-	protected $sim;
-
 	protected $crypto;
 	protected $currency;
 
-    public function __construct(CoinbaseExchange $cb, ILogger $log, $p, $sim)
+	public function __construct(
+		protected CoinbaseExchange $cb,
+		protected ILogger $log,
+		protected bool $sim,
+		string $p
+	)
     {
-		$this->cb = $cb;
-		$this->log = $log;
 		$product = explode('-', $p);
 		$this->crypto = $product[0];
 		$this->currency = $product[1];
-		$this->sim = $sim;
     }
 
-	public abstract function parseArgs($args);
+	public abstract function parseConfig(array $config): string|bool;
 	public abstract function update();
 
-	protected function sellCrypto($amount)
+	protected function sellCrypto(float $amount)
 	{
 		$this->log->alert("Selling $amount ".$this->crypto);
 		if ($this->sim) return;
 		$this->cb->marketSellCrypto($amount, $this->crypto.'-'.$this->currency);
 	}
 
-	protected function buyCrypto($amount)
+	protected function buyCrypto(float $amount)
 	{
 		$this->log->alert("Buying $amount ".$this->crypto);
 		if ($this->sim) return;
@@ -45,7 +46,7 @@ abstract class Bot
 	}
 }
 
-function getArgs()
+function getArgs(): array
 {
     global $argv;
     $args = array();
@@ -63,16 +64,17 @@ function getArgs()
     return $args;
 }
 
-function parseArgs($args, $argOpts)
+function parseArgs(array $args, array $argOpts): array
 {
 	$args = array_filter($args, function($key) use ($argOpts) {
 		return array_key_exists($key, $argOpts);
 	}, ARRAY_FILTER_USE_KEY);
 
     foreach($argOpts as $argKey=>$argData)
-    {
+	{
+		$required = isset($argData['required']) && $argData['required'];
 		if (!isset($args[$argKey])) {
-			if ($argData['required']) exit('Argument required: '.$argKey);
+			if ($required) exit('Argument required: '.$argKey);
 			else if (isset($argData['default'])) $args[$argKey] = $argData['default'];
 		}
 	}
@@ -81,14 +83,22 @@ function parseArgs($args, $argOpts)
 }
 
 $args = parseArgs(getArgs(), array(
-    'bot' => array('required' => true),
-    'p' => array('required' => true),
-    'sim' => array('required' => false, 'default' => false)
+	'bot' => array('required' => true),
+	'p' => array('required' => true),
+	'cfg' => array('required' => true),
+	'sim' => array('required' => false, 'default' => false),
 ));
 
 $L->alert('-= Cryptotrader '.VERSION.' =-');
-$L->debug('Args:'."\n".'botfile: '.$args['bot']."\n".'product: '.$args['p']);
-if ($args['sim']) $L->alert("-== SIMULATION ==-\nIn simulation mode, bots will run without\nactually spending money");
+$L->debug('Args:'."\n".'botfile: '.$args['bot']."\n".'config: '.$args['cfg']);
+$L->info('Loading bot config from '.$args['cfg']);
+
+if (!file_exists($args['cfg'])) {
+	$L->crit('Could not load bot config: File not found');
+}
+require $args['cfg'];
+if (BOT_CONFIG === null) $L->crit('Count not load bot config: BOT_CONFIG not defined');
+if (!is_array(BOT_CONFIG)) $L->crit('Could not load bot config: Expected BOT_CONFIG to be array');
 
 $L->info('Initializing API');
 $cb = new CoinbaseExchange(CB_KEY, CB_SECRET, CB_PASSPHRASE, $L->createLabelledLogger('API'));
@@ -97,13 +107,11 @@ $L->alert('API initialized.');
 
 $L->info('Initializing bot: '.$args['bot']);
 require BOT_DIRECTORY.$args['bot'].'.php';
-if (!is_subclass_of($args['bot'], 'Bot')) {
-	exit($args['bot'].'.php does not contain a valid bot class!'."\n\t".'Does not extend Bot');
-}
+if (!is_subclass_of($args['bot'], 'Bot')) $L->crit($args['bot'].'.php does not contain a valid bot class!'."\n\t".'Does not extend Bot');
 
-$bot = new $args['bot']($cb, $L->createLabelledLogger('BOT'), $args['p'], $args['sim']);
-$L->debug('Parsing bot args');
-$bot->parseArgs(getArgs());
+$bot = new $args['bot']($cb, $L->createLabelledLogger('BOT'), $args['sim'], $args['p']);
+$L->debug('Parsing bot config');
+$bot->parseConfig(BOT_CONFIG);
 $L->debug('Running bot startup');
 $bot->startup();
 $L->alert('Bot initialized.');
@@ -116,3 +124,4 @@ while(1) {
 
 	sleep(BOT_INTERVAL);
 }
+

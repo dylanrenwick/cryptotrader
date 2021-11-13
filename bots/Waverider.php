@@ -1,13 +1,34 @@
 <?php
 
+class BotState
+{
+	public const selling = 0;
+	public const buying = 1;
+	public const waitingToSell = 2;
+	public const waitingToBuy = 3;
+
+	public static function getStateName(int $state): string {
+		return 'state_'.match($state) {
+			BotState::selling => 'selling',
+			BotState::buying => 'buying',
+			BotState::waitingToSell => 'sell_wait',
+			BotState::waitingToBuy => 'buy_wait',
+			default => 'unknown'
+		};
+	}
+}
+
 class Waverider extends Bot
 {
-	private $budget;
-	private $gain;
-	private $plumetValue;
+	private $buyAmount;
+	private $minGain;
+	private $minLoss;
 	private $buyOnStart;
 	private $priceOnStart;
+	private $lossBeforeSell;
+	private $gainBeforeBuy;
 
+	private $priceBoughtAt;
 	private $priceSoldAt;
 	private $coinsHeld;
 
@@ -18,45 +39,60 @@ class Waverider extends Bot
 	private $lowestPrice = PHP_INT_MAX;
 	private $transactionCount = 0;
 
-	public function parseArgs($args)
+	private $botState;
+	private $sellPeak;
+	private $buyPeak;
+
+	public function parseConfig(array $config): string|bool
 	{
-		$args = parseArgs($args, array(
-			'bw' => array('required' => true),
-			'g' => array('required' => true),
-			'pv' => array('required' => true),
-			'nib' => array('default' => false),
-			'fip' => array(),
-		));
+		// Required
+		if (!isset($config['buy_amount'])) return '"buy_amount" not specified';
+		if (!isset($config['min_gain'])) return '"min_gain" not specified';
+		
+		// Optional
+		if (!isset($config['min_loss'])) $config['min_loss'] = 0;
+		if (!isset($config['loss_before_sell'])) $config['loss_before_sell'] = 0;
+		if (!isset($config['no_initial_buy'])) $config['no_initial_buy'] = false;
+		if (!isset($config['initial_price'])) {
+			if (!isset($config['no_initial_buy']) || !$config['no_initial_buy']) $config['initial_price'] = 0;
+			else return '"no_initial_buy" is enabled but "initial_price" not specified';
+		}
+		if (!isset($config['gain_before_buy'])) $config['gain_before_buy'] = 0;
 
-		$this->budget = floatval($args['bw']);
-		$this->gain = floatval($args['g']) / 100;
-		$this->plumetValue = floatval($args['pv']) / 100;
+		$this->buyAmount = floatval($config['buy_amount']);
+		$this->minGain = floatval($config['min_gain']) / 100;
+		$this->minLoss = floatval($config['min_loss']) / 100;
 
-		$this->buyOnStart = !$args['nib'];
-		if (!$this->buyOnStart) $this->priceOnStart = floatval($args['fip']);
+		$this->lossBeforeSell = $config['loss_before_sell'];
+		$this->gainBeforeBuy = $config['gain_before_buy'];
 
-		$argsLog = 'Args:'."\n".
-			'budget: $'.$args['bw']."\n".
-			'gain: '.($this->gain * 100)."%\n".
-			'plumet val: '.($this->plumetValue * 100)."%\n".
+		$this->buyOnStart = !$config['no_initial_buy'];
+		if (!$this->buyOnStart) $this->priceOnStart = floatval($config['initial_price']);
+
+		$argsLog = "Parsed Config:\n".
+			"buyAmount: \${$this->buyAmount}\n".
+			'minGain: '.($this->minGain * 100)."%\n".
+			'minLoss: '.($this->minLoss * 100)."%\n".
 			'buy on start: '.($this->buyOnStart ? 'true': 'false');
-		if (!$this->buyOnStart) $argsLog .= "\n".'initial price: $'.$this->priceOnStart;
+		if (!$this->buyOnStart) $argsLog .= "\ninitial price: \${$this->priceOnStart}";
 		$this->log->debug($argsLog);
 
-		$this->sellTarget = round($this->budget * $this->gain + $this->budget, 4);
-		$this->log->debug('Intial sell target price is '.$this->sellTarget);
+		$this->sellTarget = round($this->buyAmount * $this->minGain + $this->buyAmount, 4);
+		$this->log->debug("Intial sell target price is {$this->sellTarget}");
+
+		return true;
 	}
 
 	public function startup()
 	{
 		$this->log->alert('WaveRider starting...');
-		$this->log->info('Trading '.$this->crypto.'-'.$this->currency);
-		$priceBoughtAt = $this->buyOnStart ? $this->cb->lastaskprice : $this->priceOnStart;
-		$this->log->info('Initial price is $'.$priceBoughtAt);
+		$this->log->info("Trading {$this->crypto}-{$this->currency}");
+		$this->priceBoughtAt = $this->buyOnStart ? $this->cb->lastaskprice : $this->priceOnStart;
+		$this->log->info("Initial price is \${$this->priceBoughtAt}");
 		$this->priceSoldAt = $this->cb->lastbidprice;
 
-		$this->coinsHeld = round($this->budget / $priceBoughtAt, 7);
-		$this->log->info('Starting with '.$this->coinsHeld.' '.$this->crypto);
+		$this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
+		$this->log->info("Starting with {$this->coinsHeld} {$this->crypto}");
 
 		if ($this->buyOnStart) {
 			$this->buyCrypto($this->coinsHeld);
@@ -64,19 +100,21 @@ class Waverider extends Bot
 			$this->log->info('Buy on start is disabled, assuming coins already bought');
 		}
 
+		$this->setBotState(BotState::waitingToSell);
+
 		$this->lastUpdate = time();
 		$this->startTime = new DateTime();
 	}
 
 	public function update()
 	{
-		if ($this->coinsHeld !== false) {
-			$this->log->info('Currently have '.$this->coinsHeld.' '.$this->crypto.'. Looking to sell.');
-			$this->handleSell();
-		} else {
-			$this->log->info('Currencly have no coins. Looking to buy.');
-			$this->handleBuy();
-		}
+		$this->log->debug('Current bot state is '.BotState::getStateName($this->botState));
+		match ($this->botState) {
+			BotState::selling => $this->handleSell(),
+			BotState::buying => $this->handleBuy(),
+			BotState::waitingToSell => $this->handleSellWait(),
+			BotState::waitingToBuy => $this->handleBuyWait(),
+		};
 
 		if (time() - $this->lastUpdate >= BOT_ALERT_INTERVAL) {
 			$this->alertUpdate();
@@ -87,11 +125,11 @@ class Waverider extends Bot
 	{
 		$this->lastUpdate = time();
 
-		$alertMsg = 'Waverider has been running since '.$this->startTime->format('Y-m-d H:i:s')."\n".
-			'Stats for last '.(BOT_ALERT_INTERVAL/(60*60)).' hours:'."\n".
-			'Highest price seen: $'.$this->highestPrice."\n".
-			'Lowest price seen: $'.$this->lowestPrice."\n".
-			'Transactions made: '.$this->transactionCount."\n";
+		$alertMsg = "Waverider has been running since {$this->startTime->format('Y-m-d H:i:s')}\n".
+			'Stats for last '.(BOT_ALERT_INTERVAL/(60*60))." hours:\n".
+			"Highest price seen: \${$this->highestPrice}\n".
+			"Lowest price seen: \${$this->lowestPrice}\n".
+			"Transactions made: {$this->transactionCount}\n";
 		$this->log->alert($alertMsg);
 
 		$this->highestPrice = 0;
@@ -99,38 +137,81 @@ class Waverider extends Bot
 		$this->transactionCount = 0;
 	}
 
-	private function handleSell()
+	private function setBotState(int $botState)
 	{
-		$this->priceSoldAt = $this->cb->lastbidprice;
-		$this->highestPrice = max($this->highestPrice, $this->priceSoldAt);
-		$this->lowestPrice = min($this->lowestPrice, $this->priceSoldAt);
-		$this->log->debug('Current sell price: $'.$this->priceSoldAt);
-		$currentSellValue = $this->priceSoldAt * $this->coinsHeld;
-		$profit = $currentSellValue - $this->budget;
-		$this->log->info('Can sell '.$this->coinsHeld.' '.$this->crypto." for $$currentSellValue, profiting $$profit");
-		if ($profit >= $this->budget * $this->gain) {
-			$this->log->debug("Profit $$profit is greater than target of $".($this->budget * $this->gain).'. Attempting to sell.');
-			$this->sellCrypto($this->coinsHeld);
-			$this->transactionCount++;
-			$this->coinsHeld = false;
+		$this->botState = $botState;
+		$this->inStateSince = new DateTime();
+	}
+
+	private function getSellProfit()
+	{
+		$sellPrice = $this->cb->lastbidprice;
+		$this->highestPrice = max($this->highestPrice, $sellPrice);
+		$this->lowestPrice = min($this->lowestPrice, $sellPrice);
+		$this->log->debug("Current sell price: $$sellPrice");
+		$profit = $sellPrice - $this->priceBoughtAt;
+		$this->log->info("Can sell {$this->coinsHeld} {$this->crypto} for $".($sellPrice * $this->coinsHeld).', profiting $'.($profit * $this->coinsHeld));
+		return $profit;
+	}
+	private function handleSellWait()
+	{
+		$profit = $this->getSellProfit();
+		if ($profit >= $this->priceBoughtAt * $this->minGain) {
+			$this->log->debug("Profit $$profit is greater than target of $".($this->buyAmount * $this->minGain).'. Attempting to sell.');
+			$this->sellPeak = $this->cb->lastbidprice;
+			$this->setBotState(BotState::selling);
 		} else {
-			$this->log->info('Waiting until profit of $'.($this->budget * $this->gain));
+			$this->log->info('Waiting until profit of $'.($this->buyAmount * $this->minGain));
 		}
 	}
-	private function handleBuy()
+	private function handleSell()
+	{
+		$this->sellPeak = max($this->sellPeak, $this->cb->lastbidprice);
+		$this->log->debug("Peak sell price is \${$this->sellPeak}. Current sell price is \${$this->cb->lastbidprice}");
+		if ($this->cb->lastbidprice < $this->sellPeak) {
+			$loss = ($this->sellPeak - $this->cb->lastbidprice) / $this->sellPeak;
+			$this->log->debug("Price dropped by $loss%% since reaching high of \${$this->sellPeak}");
+			if ($loss >= $this->lossBeforeSell) {
+				$this->log->alert("Loss of $loss%% is greater than threshold of {$this->lossBeforeSell}%%. Price is dropping, selling coins.");
+				$this->sellCrypto($this->coinsHeld);
+				$this->setBotState(BotState::waitingToBuy);
+			}
+		}
+	}
+	
+	private function getBuyProfit()
 	{
 		$buyPrice = $this->cb->lastaskprice;
 		$this->highestPrice = max($this->highestPrice, $buyPrice);
 		$this->lowestPrice = min($this->lowestPrice, $buyPrice);
-		$targetPrice = round($this->priceSoldAt * (1 - $this->plumetValue), 4);
-		$this->log->info("Can buy at $$buyPrice.");
-		if ($buyPrice <= $targetPrice) {
-			$this->coinsHeld = round($this->budget / $buyPrice, 7);
-			$this->log->debug("Price is $$buyPrice, below target of $$targetPrice. Attempting to buy ".$this->coinsHeld.' '.$this->crypto);
-			$this->buyCrypto($this->coinsHeld);
-			$this->transactionCount++;
+		$this->log->debug("Current buy price: $$buyPrice");
+		$profit = $this->priceSoldAt - $buyPrice;
+		$this->log->info('Can buy '.($this->buyAmount / $buyPrice)." {$this->crypto} for \${$this->buyAmount}, which is ".($profit / $this->priceSoldAt).'%% cheaper than last sell.');
+		return $profit;
+	}
+	private function handleBuyWait()
+	{
+		$profit = $this->getBuyProfit();
+		if ($profit > $this->priceSoldAt * $this->minLoss) {
+			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}%% below last sell price of \${$this->lastSoldAt}. Attempting to buy.");
+			$this->buyPeak = $this->cb->lastaskprice;
+			$this->setBotState(BotState::buying);
 		} else {
-			$this->log->info("Waiting for $$targetPrice");
+			$this->log->info("Waiting for price drop of at least {$this->minLoss}%% since last sell.");
 		}
+	}
+	private function handleBuy()
+	{
+		$this->buyPeak = min($this->buyPeak, $this->cb->lastaskprice);
+		$this->log->debug("Peak buy price is \${$this->buyPeak}. Current buy price is \${$this->cb->lastaskprice}");
+		if ($this->cb->lastaskprice > $this->buyPeak) {
+			$gain = ($this->cb->lastaskprice - $this->buyPeak) / $this->buyPeak;
+			$this->log->debug("Price raised by $gain%% since reaching low of \${$this->buyPeak}");
+			if ($gain >= $this->gainBeforeBuy) {
+				$this->log->alert("Rise of $gain%% is greater than threshold of {$this->gainBeforeSell}%%. Price is rising, buying coins.");
+				$this->buyCrypto($this->buyValue);
+			}
+		}
+
 	}
 }
