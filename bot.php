@@ -84,7 +84,8 @@ $args = parseArgs(getArgs(), array(
 	'sim' => array('required' => false, 'default' => false),
 ));
 
-$botName = explode('.', $args['cfg']);
+$botName = explode('/', $args['cfg']);
+$botName = explode('.', $botName);
 $botName = $botName[0];
 $L = new Logger($botName);
 $L->debug('Logger initialized.');
