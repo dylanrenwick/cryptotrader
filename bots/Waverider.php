@@ -2,13 +2,15 @@
 
 class BotState
 {
-	public const selling = 0;
-	public const buying = 1;
-	public const waitingToSell = 2;
-	public const waitingToBuy = 3;
+	public const startup = 0;
+	public const selling = 1;
+	public const buying = 2;
+	public const waitingToSell = 3;
+	public const waitingToBuy = 4;
 
 	public static function getStateName(int $state): string {
 		return 'state_'.match($state) {
+			BotState::startup => 'startup',
 			BotState::selling => 'selling',
 			BotState::buying => 'buying',
 			BotState::waitingToSell => 'sell_wait',
@@ -58,6 +60,7 @@ class Waverider extends Bot
 			else return '"no_initial_buy" is enabled but "initial_price" not specified';
 		}
 		if (!isset($config['gain_before_buy'])) $config['gain_before_buy'] = 0;
+		if (!isset($config['initial_state'])) $config['initial_state'] = BotState::startup;
 
 		$this->buyAmount = floatval($config['buy_amount']);
 		$this->minGain = floatval($config['min_gain']) / 100;
@@ -80,6 +83,8 @@ class Waverider extends Bot
 		$this->sellTarget = round($this->buyAmount * $this->minGain + $this->buyAmount, 4);
 		$this->log->debug("Intial sell target price is {$this->sellTarget}");
 
+		$this->setBotState($config['initial_state']);
+
 		return true;
 	}
 
@@ -91,17 +96,6 @@ class Waverider extends Bot
 		$this->log->info("Initial price is \${$this->priceBoughtAt}");
 		$this->priceSoldAt = $this->cb->lastbidprice;
 
-		$this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
-		$this->log->info("Starting with {$this->coinsHeld} {$this->crypto}");
-
-		if ($this->buyOnStart) {
-			$this->buyCrypto($this->coinsHeld);
-		} else {
-			$this->log->info('Buy on start is disabled, assuming coins already bought');
-		}
-
-		$this->setBotState(BotState::waitingToSell);
-
 		$this->lastUpdate = time();
 		$this->startTime = new DateTime();
 	}
@@ -110,6 +104,7 @@ class Waverider extends Bot
 	{
 		$this->log->debug('Current bot state is '.BotState::getStateName($this->botState));
 		match ($this->botState) {
+			BotState::startup => $this->handleStartup(),
 			BotState::selling => $this->handleSell(),
 			BotState::buying => $this->handleBuy(),
 			BotState::waitingToSell => $this->handleSellWait(),
@@ -141,6 +136,20 @@ class Waverider extends Bot
 	{
 		$this->botState = $botState;
 		$this->inStateSince = new DateTime();
+	}
+
+	private function handleStartup()
+	{
+		$this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
+		$this->log->info("Starting with {$this->coinsHeld} {$this->crypto}");
+
+		if ($this->buyOnStart) {
+			$this->buyCrypto($this->coinsHeld);
+		} else {
+			$this->log->info('Buy on start is disabled, assuming coins already bought');
+		}
+
+		$this->setBotState(BotState::waitingToSell);
 	}
 
 	private function getSellProfit()
