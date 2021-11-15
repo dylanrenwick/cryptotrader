@@ -14,28 +14,22 @@ include_once(ROOT.DS.'config.inc.php');
 class CoinbaseExchange
 {
     private $apiurl = "https://api.pro.coinbase.com";
-    private $key;
-    private $secret;
-    private $passphrase;
     public $accounts;
     
     private $bidsprices;
-    public $lastbidprice=0;
-    private $lowestbids=99999;
+    public $lastbidprice = 0;
+    private $lowestask = PHP_INT_MAX;
     
     private $askprices;
-    public $lastaskprice=0;
-	private $highestask=0;
+    public $lastaskprice = 0;
+	private $highestask = 0;
 
-	private $log;
-
-    public function __construct($key, $secret, $passphrase, ILogger $logger) {
-        $this->key = $key;
-        $this->secret = $secret;
-        $this->passphrase = $passphrase;
-
-		$this->log = $logger;
-    }
+	public function __construct(
+		private $key,
+		private $secret,
+		private $passphrase,
+		private ILogger $log)
+	{ }
 
     function updatePrices($product='BTC-USD')
 	{
@@ -55,8 +49,8 @@ class CoinbaseExchange
 
         if($this->lowestask>$ask)
             $this->lowestask = $ask;
-        if($this->highestbid<$bid)
-            $this->highestbid = $bid;
+        if($this->highestask<$bid)
+            $this->highestask = $bid;
 
         $this->lastaskprice = $ask;
         $this->lastbidprice = $bid;
@@ -232,7 +226,7 @@ class CoinbaseExchange
 
 
         $json = json_decode($resp,true);
-        if($json['message'])
+        if(isset($json['message']))
         {
             $this->log->error("Error while making a call. Message:\n\t".$json['message']);
             return false;

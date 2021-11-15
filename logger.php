@@ -4,12 +4,14 @@ interface ILogger
 {
 	public function log($logLevel, $message, $label);
 
-	public function crit($message);
+	public function crit($message, $exitCode);
 	public function error($message);
 	public function warn($message);
 	public function alert($message);
 	public function info($message);
 	public function debug($message);
+
+	public function handleError($errno, $errstr, $errfile, $errline);
 }
 
 class Logger implements ILogger
@@ -30,11 +32,13 @@ class Logger implements ILogger
 		'DEBUG'
 	);
 
-	public function __construct()
+	public function __construct(
+		private $botName = 'cryptotrader',
+	)
 	{
 		if ($this->logToFile) {
 			$time = new DateTime();
-			$this->fileName = $this->logToFile.'cryptotrader-'.$time->format('Y-m-d');
+			$this->fileName = "{$this->logToFile}$botName-{$time->format('Y-m-d')}";
 			if (file_exists($this->fileName.'.log')) {
 				$i = 2;
 				while (file_exists($this->fileName."_$i.log")) $i++;
@@ -68,12 +72,28 @@ class Logger implements ILogger
 		}
 	}
 
-	public function crit($message) { $this->log(0, $message); }
+	public function crit($message, $exitCode) { $this->log(0, $message); exit($exitCode); }
 	public function error($message) { $this->log(1, $message); }
 	public function warn($message) { $this->log(2, $message); }
 	public function alert($message) { $this->log(3, $message); }
 	public function info($message) { $this->log(4, $message); }
 	public function debug($message) { $this->log(5, $message); }
+
+	public function handleError($errno, $errstr, $errfile, $errline)
+	{
+		if (!(error_reporting() & $errno)) return false;
+
+		$errLevel = match($errno) {
+			E_USER_ERROR => 0,
+			E_RECOVERABLE_ERROR => 1,
+			E_WARNING,E_USER_WARNING => 2,
+			E_NOTICE,E_USER_NOTICE,E_DEPRECATED,E_USER_DEPRECATED => 3,
+			default => 5,
+		};
+
+		$this->log($errLevel, "$errstr\nIn $errfile, Line $errline", 'PHP');
+		return true;
+	}
 
 	public function createLabelledLogger($label)
 	{
@@ -94,7 +114,7 @@ class SubLogger extends Logger
 
 	public function log($level, $message, $label = '')
 	{
-		$this->parent->log($level, $message, $this->label);
+		$this->parent->log($level, $message, strlen($label) ? $label : $this->label);
 	}
 }
 
