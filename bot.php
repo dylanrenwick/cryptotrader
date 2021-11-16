@@ -24,7 +24,7 @@ abstract class Bot
     }
 
 	public abstract function parseConfig(array $config): string|bool;
-	public abstract function update();
+	public abstract function update(int $step);
 
 	protected function sellCrypto(float $amount)
 	{
@@ -124,8 +124,12 @@ $L->debug('Running bot startup');
 $bot->startup();
 $L->alert('Bot initialized.');
 
+$step = 0;
+
 $L->alert('Running');
 while(1) {
+	$step++;
+	if ($step < 0) $step = 1;
 	$cb->updatePrices($args['p']);
 
 	$L->debug('Checking for config updates...');
@@ -136,7 +140,7 @@ while(1) {
 		$bot->parseConfig($BOT_CONFIG);
 	}
 
-	$bot->update();
+	$bot->update($step);
 
 	sleep(BOT_INTERVAL);
 }

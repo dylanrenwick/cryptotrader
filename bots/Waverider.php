@@ -102,8 +102,9 @@ class Waverider extends Bot
 		$this->startTime = new DateTime();
 	}
 
-	public function update()
+	public function update(int $step)
 	{
+		$this->log->debug("Update step $step at interval of ".BOT_INTERVAL.'s');
 		$this->log->debug('Current bot state is '.BotState::getStateName($this->botState));
 		match ($this->botState) {
 			BotState::startup => $this->handleStartup(),
