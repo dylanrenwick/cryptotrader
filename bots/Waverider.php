@@ -96,6 +96,8 @@ class Waverider extends Bot
 		$this->log->info("Initial price is \${$this->priceBoughtAt}");
 		$this->priceSoldAt = $this->cb->lastbidprice;
 
+		if (!$this->buyOnStart) $this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
+
 		$this->lastUpdate = time();
 		$this->startTime = new DateTime();
 	}
