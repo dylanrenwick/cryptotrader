@@ -32,7 +32,6 @@ class Waverider extends Bot
 
 	private $priceBoughtAt;
 	private $priceSoldAt;
-	private $coinsHeld;
 
 	private $lastUpdate;
 	private $startTime;
@@ -83,6 +82,14 @@ class Waverider extends Bot
 		$this->sellTarget = round($this->buyAmount * $this->minGain + $this->buyAmount, 4);
 		$this->log->debug("Intial sell target price is {$this->sellTarget}");
 
+		if (!$this->buyOnStart) {
+			if (!isset($config['initial_balance'])) {
+				$this->cb->loadAccounts();
+				$config['initial_balance'] = $this->getCryptoAccountInfo()['balance'] || 0;
+			}
+			$this->coinsHeld = $config['initial_balance'];
+		}
+
 		$this->setBotState($config['initial_state']);
 
 		return true;
@@ -96,7 +103,6 @@ class Waverider extends Bot
 		$this->log->info("Initial price is \${$this->priceBoughtAt}");
 		$this->priceSoldAt = $this->cb->lastbidprice;
 
-		if (!$this->buyOnStart) $this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
 
 		$this->lastUpdate = time();
 		$this->startTime = new DateTime();
@@ -143,11 +149,11 @@ class Waverider extends Bot
 
 	private function handleStartup()
 	{
-		$this->coinsHeld = round($this->buyAmount / $this->priceBoughtAt, 7);
-		$this->log->info("Starting with {$this->coinsHeld} {$this->crypto}");
+		$this->coinsToBuy = round($this->buyAmount / $this->priceBoughtAt, 7);
+		$this->log->info("Starting with {$this->coinsToBuy} {$this->crypto}");
 
 		if ($this->buyOnStart) {
-			$this->buyCrypto($this->coinsHeld);
+			$this->buyCrypto($this->coinsToBuy);
 		} else {
 			$this->log->info('Buy on start is disabled, assuming coins already bought');
 		}
@@ -185,7 +191,8 @@ class Waverider extends Bot
 			$this->log->debug("Price dropped by $loss%% since reaching high of \${$this->sellPeak}");
 			if ($loss >= $this->lossBeforeSell) {
 				$this->log->alert("Loss of $loss%% is greater than threshold of {$this->lossBeforeSell}%%. Price is dropping, selling coins.");
-				$this->sellCrypto($this->coinsHeld);
+				$coinsToSell = $this->buyValue / $this->priceBoughtAt;
+				$this->sellCrypto($coinsToSell);
 				$this->setBotState(BotState::waitingToBuy);
 			}
 		}
@@ -224,6 +231,5 @@ class Waverider extends Bot
 				$this->buyCrypto($this->buyValue);
 			}
 		}
-
 	}
 }

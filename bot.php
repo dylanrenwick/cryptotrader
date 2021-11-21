@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', 'v0.2.3');
+define('VERSION', 'v0.3.0');
 
 require_once './coinbase-pro.php';
 require_once './config.inc.php';
@@ -10,6 +10,8 @@ abstract class Bot
 {
 	protected $crypto;
 	protected $currency;
+
+	protected $coinsHeld;
 
 	public function __construct(
 		protected CoinbaseExchange $cb,
@@ -21,23 +23,42 @@ abstract class Bot
 		$product = explode('-', $p);
 		$this->crypto = $product[0];
 		$this->currency = $product[1];
+		$this->coinsHeld = 0;
     }
 
 	public abstract function parseConfig(array $config): string|bool;
 	public abstract function update(int $step);
 
+	protected function adjustCoinsHeld($amount)
+	{
+		$this->coinsHeld = max($this->coinsHeld + $amount, 0);
+	}
+
 	protected function sellCrypto(float $amount)
 	{
 		$this->log->alert("Selling $amount ".$this->crypto);
 		if ($this->sim) return;
+		$coinsBefore = $this->getCryptoAccountInfo()['balance'] || 0;
 		$this->cb->marketSellCrypto($amount, $this->crypto.'-'.$this->currency);
+		$coinsAfter = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsSold = $coinsBefore - $coinsAfter;
+		$this->adjustCoinsHeld($coinsSold * -1);
 	}
 
 	protected function buyCrypto(float $amount)
 	{
 		$this->log->alert("Buying $amount ".$this->crypto);
 		if ($this->sim) return;
+		$coinsBefore = $this->getCryptoAccountInfo()['balance'] || 0;
 		$this->cb->marketBuyCrypto($amount, $this->crypto.'-'.$this->currency);
+		$coinsAfter = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsBought = $coinsAfter - $coinsBefore;
+		$this->adjustCoinsHeld($coinsBought);
+	}
+
+	protected function getCryptoAccountInfo()
+	{
+		return $this->cb->getAccountInfo($this->crypto);
 	}
 }
 
