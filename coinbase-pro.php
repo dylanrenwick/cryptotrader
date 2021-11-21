@@ -197,11 +197,14 @@ class CoinbaseExchange
     }
 
     function loadAccounts()
-    {
+	{
+		$this->log->info('Reloading accounts...');
         $data = $this->makeRequest('/accounts');
-        if($data===false) exit('Error getting accounts');
+        if($data===false) $this->log->error('Error getting accounts');
         foreach($data as $d)
-        {
+		{
+			$account = var_export($d, true);
+			$this->log->debug("Account for ${d['currency']}:\n".$account);
             $this->accounts[$d['currency']] = $d;
         }
     }
