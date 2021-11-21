@@ -112,22 +112,32 @@ class CoinbaseExchange
     function marketSellCrypto($amount,$product='BTC-USD')
 	{
 		$this->log->info("Making sell request for $amount $product");
-        $result = $this->makeRequest('/orders',array(   'size'=>$amount,
-                                                        'side'=>'sell',
-                                                        'type'=>'market',
-                                                        'product_id'=>$product
-                                                    ));
+		$result = $this->makeRequest(
+			'/orders',
+			array(
+				'size'=>$amount,
+				'side'=>'sell',
+                'type'=>'market',
+                'product_id'=>$product
+			)
+		);
+		$this->loadAccounts();
 
         return $result;
     }
 
     function marketSellCurrency($amount,$product='BTC-USD')
     {
-        $result = $this->makeRequest('/orders',array(   'funds'=>$amount,
-                                                        'side'=>'sell',
-                                                        'type'=>'market',
-                                                        'product_id'=>$product
-                                                    ));
+		$result = $this->makeRequest(
+			'/orders',
+			array(
+				'funds'=>$amount,
+                'side'=>'sell',
+                'type'=>'market',
+                'product_id'=>$product
+			)
+		);
+		$this->loadAccounts();
 
         return $result;
     }
@@ -135,22 +145,32 @@ class CoinbaseExchange
     function marketBuyCrypto($amount,$product='BTC-USD')
     {
 		$this->log->info("Making buy request for $amount $product");
-        $result = $this->makeRequest('/orders',array(   'size'=>$amount,
-                                                        'side'=>'buy',
-                                                        'type'=>'market',
-                                                        'product_id'=>$product
-                                                    ));
+		$result = $this->makeRequest(
+			'/orders',
+			array(
+				'size'=>$amount,
+                'side'=>'buy',
+                'type'=>'market',
+                'product_id'=>$product
+			)
+		);
+		$this->loadAccounts();
 
         return $result;
     }
 
     function marketBuyCurrency($amount,$product='BTC-USD')
     {
-        $result = $this->makeRequest('/orders',array(   'funds'=>$amount,
-                                                        'side'=>'buy',
-                                                        'type'=>'market',
-                                                        'product_id'=>$product
-                                                    ));
+		$result = $this->makeRequest(
+			'/orders',
+			array(
+				'funds'=>$amount,
+                'side'=>'buy',
+                'type'=>'market',
+                'product_id'=>$product
+			)
+		);
+		$this->loadAccounts();
 
         return $result;
     }
