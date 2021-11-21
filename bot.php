@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', 'v0.3.1');
+define('VERSION', 'v0.3.2');
 
 require_once './coinbase-pro.php';
 require_once './config.inc.php';
@@ -38,9 +38,9 @@ abstract class Bot
 	{
 		$this->log->alert("Selling $amount ".$this->crypto);
 		if ($this->sim) return;
-		$coinsBefore = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsBefore = $this->getCryptoBalance();
 		$this->cb->marketSellCrypto($amount, $this->crypto.'-'.$this->currency);
-		$coinsAfter = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsAfter = $this->getCryptoBalance();
 		$coinsSold = $coinsBefore - $coinsAfter;
 		$this->adjustCoinsHeld($coinsSold * -1);
 	}
@@ -49,9 +49,9 @@ abstract class Bot
 	{
 		$this->log->alert("Buying $amount ".$this->crypto);
 		if ($this->sim) return;
-		$coinsBefore = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsBefore = $this->getCryptoBalance();
 		$this->cb->marketBuyCrypto($amount, $this->crypto.'-'.$this->currency);
-		$coinsAfter = $this->getCryptoAccountInfo()['balance'] || 0;
+		$coinsAfter = $this->getCryptoBalance();
 		$coinsBought = $coinsAfter - $coinsBefore;
 		$this->adjustCoinsHeld($coinsBought);
 	}
@@ -59,6 +59,13 @@ abstract class Bot
 	protected function getCryptoAccountInfo()
 	{
 		return $this->cb->getAccountInfo($this->crypto);
+	}
+	protected function getCryptoBalance()
+	{
+		$account = $this->getCryptoAccountInfo();
+		$balance = 0.0;
+		if (isset($account['balance']))	$balance = $account['balance'];
+		return $balance;
 	}
 }
 

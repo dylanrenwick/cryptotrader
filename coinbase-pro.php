@@ -203,8 +203,29 @@ class CoinbaseExchange
         if($data===false) $this->log->error('Error getting accounts');
         foreach($data as $d)
 		{
+			if ($d['trading_enabled'] === false) {
+				$this->log->debug("Skipping account ${d['currency']} because Coinbase reports trading disabled.");
+				continue;
+			}
+
+			$d['balance'] = floatval($d['balance']);
+			$d['hold'] = floatval($d['hold']);
+			$d['available'] = floatval($d['available']);
+
+			if ($d['balance'] == 0 && $d['hold'] == 0 && $d['available'] == 0
+				&& (
+					isset($this->accounts[$d['currency']])
+					&& $this->accounts[$d['currency']]['balance'] == 0
+					&& $this->accounts[$d['currency']]['hold'] == 0
+					&& $this->accounts[$d['currency']]['available'] == 0
+				)
+			) {
+				$this->log->debug("Skipping unused account ${d['currency']}");
+				continue;
+			}
 			$account = var_export($d, true);
 			$this->log->debug("Account for ${d['currency']}:\n".$account);
+
             $this->accounts[$d['currency']] = $d;
         }
     }

@@ -84,10 +84,13 @@ class Waverider extends Bot
 
 		if (!$this->buyOnStart) {
 			if (!isset($config['initial_balance'])) {
+				$this->log->debug('initial_balance not configured, fetching balance from API.');
 				$this->cb->loadAccounts();
-				$config['initial_balance'] = $this->getCryptoAccountInfo()['balance'] || 0;
+				$config['initial_balance'] = $this->getCryptoBalance();
+				$this->log->debug('Fetched '.$this->getCryptoBalance());
 			}
 			$this->coinsHeld = $config['initial_balance'];
+			$this->log->debug('Starting with '.$this->coinsHeld.' coins');
 		}
 
 		$this->setBotState($config['initial_state']);
