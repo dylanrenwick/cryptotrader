@@ -72,7 +72,7 @@ class Logger implements ILogger
 		}
 	}
 
-	public function crit($message, $exitCode) { $this->log(0, $message); exit($exitCode); }
+	public function crit($message, $exitCode = 1) { $this->log(0, $message); exit($exitCode); }
 	public function error($message) { $this->log(1, $message); }
 	public function warn($message) { $this->log(2, $message); }
 	public function alert($message) { $this->log(3, $message); }
