@@ -58,6 +58,7 @@ class Waverider extends Bot
 			if (!isset($config['no_initial_buy']) || !$config['no_initial_buy']) $config['initial_price'] = 0;
 			else return '"no_initial_buy" is enabled but "initial_price" not specified';
 		}
+		if (!isset($config['initial_last_sold_price'])) $config['initial_last_sold_price'] = False;
 		if (!isset($config['gain_before_buy'])) $config['gain_before_buy'] = 0;
 		if (!isset($config['initial_state'])) $config['initial_state'] = BotState::startup;
 
@@ -69,7 +70,10 @@ class Waverider extends Bot
 		$this->gainBeforeBuy = $config['gain_before_buy'];
 
 		$this->buyOnStart = !$config['no_initial_buy'];
-		if (!$this->buyOnStart) $this->priceOnStart = floatval($config['initial_price']);
+		if (!$this->buyOnStart) {
+			$this->priceOnStart = floatval($config['initial_price']);
+			$this->priceSoldAt = floatval($config['initial_last_sold_price']);
+		}
 
 		$argsLog = "Parsed Config:\n".
 			"buyAmount: \${$this->buyAmount}\n".
@@ -104,8 +108,7 @@ class Waverider extends Bot
 		$this->log->info("Trading {$this->crypto}-{$this->currency}");
 		$this->priceBoughtAt = $this->buyOnStart ? $this->cb->lastaskprice : $this->priceOnStart;
 		$this->log->info("Initial price is \${$this->priceBoughtAt}");
-		$this->priceSoldAt = $this->cb->lastbidprice;
-
+		if (empty($this->priceSoldAt)) $this->priceSoldAt = $this->cb->lastbidprice;
 
 		$this->lastUpdate = time();
 		$this->startTime = new DateTime();
