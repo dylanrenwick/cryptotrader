@@ -257,6 +257,7 @@ class Waverider extends Bot
 			if ($gain >= $this->gainBeforeBuy) {
 				$this->log->alert("Rise of $gain% is greater than threshold of {$this->gainBeforeSell}%. Price is rising, buying coins.");
 				$this->buyCrypto($this->buyAmount);
+				$this->setBotState(BotState::waiitingToSell);
 			}
 		}
 	}
