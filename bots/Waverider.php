@@ -194,7 +194,7 @@ class Waverider extends Bot
 			$this->log->debug("Price dropped by $loss% since reaching high of \${$this->sellPeak}");
 			if ($loss >= $this->lossBeforeSell) {
 				$this->log->alert("Loss of $loss% is greater than threshold of {$this->lossBeforeSell}%. Price is dropping, selling coins.");
-				$coinsToSell = $this->buyAmount / $this->priceBoughtAt;
+				$coinsToSell = round($this->buyAmount / $this->priceBoughtAt, 8);
 				$this->sellCrypto($coinsToSell);
 				$this->setBotState(BotState::waitingToBuy);
 			}
