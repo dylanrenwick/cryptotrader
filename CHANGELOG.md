@@ -1,3 +1,7 @@
+# v0.3.4
+* Fixed wrong variable name used in buying and selling
+* Fixed 'size is too accurate' error when selling by rounding to 8 decimal places
+
 # v0.3.3
 * Fixed faulty percentage calculation causing bot to wait too long before selling
 * Fixed double percent signs in log
