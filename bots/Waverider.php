@@ -75,11 +75,10 @@ class Waverider extends Bot
 			$this->priceSoldAt = floatval($config['initial_last_sold_price']);
 		}
 
-		$argsLog = "Parsed Config:\n".
-			"buyAmount: \${$this->buyAmount}\n".
-			'minGain: '.($this->minGain * 100)."%\n".
-			'minLoss: '.($this->minLoss * 100)."%\n".
-			'buy on start: '.($this->buyOnStart ? 'true': 'false');
+		$argsLog = "Parsed Config:\n";
+		foreach ($config as $key => $value) {
+			$argsLog .= "$key: $value";
+		}
 		if (!$this->buyOnStart) $argsLog .= "\ninitial price: \${$this->priceOnStart}";
 		$this->log->debug($argsLog);
 
