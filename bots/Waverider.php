@@ -77,7 +77,7 @@ class Waverider extends Bot
 
 		$argsLog = "Parsed Config:\n";
 		foreach ($config as $key => $value) {
-			$argsLog .= "$key: $value";
+			$argsLog .= "- $key: $value\n";
 		}
 		if (!$this->buyOnStart) $argsLog .= "\ninitial price: \${$this->priceOnStart}";
 		$this->log->debug($argsLog);
