@@ -22,6 +22,20 @@ class BotState
 
 class Waverider extends Bot
 {
+	private const KNOWN_CONFIG_KEYS = array(
+		// Required
+		'buy_amount',
+		'min_gain',
+		//Optional
+		'min_loss',
+		'loss_before_sell',
+		'no_initial_buy',
+		'initial_price',
+		'initial_last_sold_price',
+		'gain_before_buy',
+		'initial_state',
+	);
+	
 	private $buyAmount;
 	private $minGain;
 	private $minLoss;
@@ -76,8 +90,17 @@ class Waverider extends Bot
 		}
 
 		$argsLog = "Parsed Config:\n";
+		uksort($config, function($a, $b) {
+			$a_val = intval(in_array($a, Waverider::KNOWN_CONFIG_KEYS));
+			$b_val = intval(in_array($b, Waverider::KNOWN_CONFIG_KEYS));
+			return 1 - ($a_val - $b_val);
+		});
 		foreach ($config as $key => $value) {
-			$argsLog .= "- $key: ".var_export($value, true)."\n";
+			$argsLog .= "- $key: ".var_export($value, true);
+			if (!in_array($key, Waverider::KNOWN_CONFIG_KEYS)) {
+				$argsLog .= "\t; unrecognized config key";
+			}
+			$argsLog .= "\n";
 		}
 		if (!$this->buyOnStart) $argsLog .= "\ninitial price: \${$this->priceOnStart}";
 		$this->log->debug($argsLog);
