@@ -241,7 +241,7 @@ class Waverider extends Bot
 	{
 		$profit = $this->getBuyProfit();
 		if ($profit > $this->priceSoldAt * $this->minLoss) {
-			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}% below last sell price of \${$this->lastSoldAt}. Attempting to buy.");
+			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}% below last sell price of \${$this->priceSoldAt}. Attempting to buy.");
 			$this->buyPeak = $this->cb->lastaskprice;
 			$this->setBotState(BotState::buying);
 		} else {
@@ -256,7 +256,7 @@ class Waverider extends Bot
 			$gain = ($this->cb->lastaskprice - $this->buyPeak) / $this->buyPeak * 100;
 			$this->log->debug("Price raised by $gain% since reaching low of \${$this->buyPeak}");
 			if ($gain >= $this->gainBeforeBuy) {
-				$this->log->alert("Rise of $gain% is greater than threshold of {$this->gainBeforeSell}%. Price is rising, buying coins.");
+				$this->log->alert("Rise of $gain% is greater than threshold of {$this->gainBeforeBuy}%. Price is rising, buying coins.");
 				$this->buyCrypto($this->buyAmount);
 				$this->transactionCount++;
 				$this->setBotState(BotState::waiitingToSell);
