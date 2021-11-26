@@ -26,7 +26,7 @@ abstract class Bot
 		$this->coinsHeld = 0;
     }
 
-	public abstract function parseConfig(array $config): string|bool;
+	public abstract function parseProfile(array $config): string|bool;
 	public abstract function update(int $step);
 
 	protected function adjustCoinsHeld($amount)
@@ -122,19 +122,19 @@ $L->debug('Logger now catching PHP errors.');
 
 $L->alert('-= Cryptotrader '.VERSION.' =-');
 $L->alert('--==={ '.$botName.' }===--');
-$L->debug("Args:\nbotfile: {$args['bot']}\nproduct: {$args['p']}\nconfig: {$args['cfg']}");
+$L->debug("Args:\nbotfile: {$args['bot']}\nproduct: {$args['p']}\nprofile: {$args['cfg']}");
 if ($args['sim']) {
 	$L->alert('-= [Simulation] =-');
 	$L->debug('In simulation mode, the bot will not send transactions to Coinbase.');
 }
-$L->info('Loading bot config from '.$args['cfg']);
+$L->info('Loading bot profile from '.$args['cfg']);
 
 if (!file_exists($args['cfg'])) {
-	$L->crit('Could not load bot config: File not found');
+	$L->crit('Could not load bot profile: File not found');
 }
 require $args['cfg'];
-if ($BOT_CONFIG === null) $L->crit('Count not load bot config: BOT_CONFIG not defined');
-if (!is_array($BOT_CONFIG)) $L->crit('Could not load bot config: Expected BOT_CONFIG to be array');
+if ($BOT_PROFILE === null) $L->crit('Count not load bot profile: BOT_PROFILE not defined');
+if (!is_array($BOT_PROFILE)) $L->crit('Could not load bot profile: Expected BOT_PROFILE to be array');
 
 $L->info('Initializing API');
 $cb = new CoinbaseExchange(CB_KEY, CB_SECRET, CB_PASSPHRASE, $L->createLabelledLogger('API'));
@@ -146,8 +146,8 @@ require BOT_DIRECTORY.$args['bot'].'.php';
 if (!is_subclass_of($args['bot'], 'Bot')) $L->crit($args['bot'].'.php does not contain a valid bot class!'."\n\t".'Does not extend Bot');
 
 $bot = new $args['bot']($cb, $L->createLabelledLogger('BOT'), $args['sim'], $args['p']);
-$L->debug('Parsing bot config');
-$bot->parseConfig($BOT_CONFIG);
+$L->debug('Parsing bot profile');
+$bot->parseProfile($BOT_PROFILE);
 $L->debug('Running bot startup');
 $bot->startup();
 $L->alert('Bot initialized.');
@@ -160,12 +160,12 @@ while(1) {
 	if ($step < 0) $step = 1;
 	$cb->updatePrices($args['p']);
 
-	$L->debug('Checking for config updates...');
-	$temp = $BOT_CONFIG;
+	$L->debug('Checking for profile updates...');
+	$temp = $BOT_PROFILE;
 	require $args['cfg'];
-	if ($temp != $BOT_CONFIG) {
-		$L->alert('Detected config change, updating bot config');
-		$bot->parseConfig($BOT_CONFIG);
+	if ($temp != $BOT_PROFILE) {
+		$L->alert('Detected profile change, updating bot profile');
+		$bot->parseConfig($BOT_PROFILE);
 	}
 
 	$bot->update($step);
