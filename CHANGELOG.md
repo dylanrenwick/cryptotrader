@@ -1,3 +1,6 @@
+# v0.3.7
+* Fixed typo after buying coins
+  
 # v0.3.6
 * Fixed calculating how many coins to sell instead of selling based on `coinsHeld`
 
