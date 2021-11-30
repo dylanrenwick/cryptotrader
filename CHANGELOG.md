@@ -1,3 +1,10 @@
+# v0.3.5
+* Added `initial_last_sold_price` config option to set last sold price when starting in buying state
+* Updated formatting of bot config output to display all config keys and identify unknown keys
+* Fixed bot state not changing to `state_wait_sell` after buying crypto
+* Fixed transactions counter in periodic alert not being incremented
+* Fixed last sold price not printing when transitioning from `state_wait_sell` to `state_sell`
+
 # v0.3.4
 * Fixed wrong variable name used in buying and selling
 * Fixed 'size is too accurate' error when selling by rounding to 8 decimal places

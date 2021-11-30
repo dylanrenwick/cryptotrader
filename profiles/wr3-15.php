@@ -1,5 +1,5 @@
 <?php
-$BOT_CONFIG = array(
+$BOT_PROFILE = array(
 	'buy_amount' => 100,
 	'min_gain' => 3,
 	'min_loss' => 1.5,

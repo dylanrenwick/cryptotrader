@@ -22,7 +22,7 @@ class BotState
 
 class Waverider extends Bot
 {
-	private const KNOWN_CONFIG_KEYS = array(
+	private const KNOWN_PROFILE_KEYS = array(
 		// Required
 		'buy_amount',
 		'min_gain',
@@ -58,47 +58,47 @@ class Waverider extends Bot
 	private $sellPeak;
 	private $buyPeak;
 
-	public function parseConfig(array $config): string|bool
+	public function parseProfile(array $profile): string|bool
 	{
 		// Required
-		if (!isset($config['buy_amount'])) return '"buy_amount" not specified';
-		if (!isset($config['min_gain'])) return '"min_gain" not specified';
+		if (!isset($profile['buy_amount'])) return '"buy_amount" not specified';
+		if (!isset($profile['min_gain'])) return '"min_gain" not specified';
 		
 		// Optional
-		if (!isset($config['min_loss'])) $config['min_loss'] = 0;
-		if (!isset($config['loss_before_sell'])) $config['loss_before_sell'] = 0;
-		if (!isset($config['no_initial_buy'])) $config['no_initial_buy'] = false;
-		if (!isset($config['initial_price'])) {
-			if (!isset($config['no_initial_buy']) || !$config['no_initial_buy']) $config['initial_price'] = 0;
+		if (!isset($profile['min_loss'])) $profile['min_loss'] = 0;
+		if (!isset($profile['loss_before_sell'])) $profile['loss_before_sell'] = 0;
+		if (!isset($profile['no_initial_buy'])) $profile['no_initial_buy'] = false;
+		if (!isset($profile['initial_price'])) {
+			if (!isset($profile['no_initial_buy']) || !$profile['no_initial_buy']) $profile['initial_price'] = 0;
 			else return '"no_initial_buy" is enabled but "initial_price" not specified';
 		}
-		if (!isset($config['initial_last_sold_price'])) $config['initial_last_sold_price'] = False;
-		if (!isset($config['gain_before_buy'])) $config['gain_before_buy'] = 0;
-		if (!isset($config['initial_state'])) $config['initial_state'] = BotState::startup;
+		if (!isset($profile['initial_last_sold_price'])) $profile['initial_last_sold_price'] = False;
+		if (!isset($profile['gain_before_buy'])) $profile['gain_before_buy'] = 0;
+		if (!isset($profile['initial_state'])) $profile['initial_state'] = BotState::startup;
 
-		$this->buyAmount = floatval($config['buy_amount']);
-		$this->minGain = floatval($config['min_gain']) / 100;
-		$this->minLoss = floatval($config['min_loss']) / 100;
+		$this->buyAmount = floatval($profile['buy_amount']);
+		$this->minGain = floatval($profile['min_gain']) / 100;
+		$this->minLoss = floatval($profile['min_loss']) / 100;
 
-		$this->lossBeforeSell = $config['loss_before_sell'];
-		$this->gainBeforeBuy = $config['gain_before_buy'];
+		$this->lossBeforeSell = $profile['loss_before_sell'];
+		$this->gainBeforeBuy = $profile['gain_before_buy'];
 
-		$this->buyOnStart = !$config['no_initial_buy'];
+		$this->buyOnStart = !$profile['no_initial_buy'];
 		if (!$this->buyOnStart) {
-			$this->priceOnStart = floatval($config['initial_price']);
-			$this->priceSoldAt = floatval($config['initial_last_sold_price']);
+			$this->priceOnStart = floatval($profile['initial_price']);
+			$this->priceSoldAt = floatval($profile['initial_last_sold_price']);
 		}
 
-		$argsLog = "Parsed Config:\n";
-		uksort($config, function($a, $b) {
-			$a_val = intval(in_array($a, Waverider::KNOWN_CONFIG_KEYS));
-			$b_val = intval(in_array($b, Waverider::KNOWN_CONFIG_KEYS));
+		$argsLog = "Parsed Profile:\n";
+		uksort($profile, function($a, $b) {
+			$a_val = intval(in_array($a, Waverider::KNOWN_PROFILE_KEYS));
+			$b_val = intval(in_array($b, Waverider::KNOWN_PROFILE_KEYS));
 			return 1 - ($a_val - $b_val);
 		});
-		foreach ($config as $key => $value) {
+		foreach ($profile as $key => $value) {
 			$argsLog .= "- $key: ".var_export($value, true);
-			if (!in_array($key, Waverider::KNOWN_CONFIG_KEYS)) {
-				$argsLog .= "\t; unrecognized config key";
+			if (!in_array($key, Waverider::KNOWN_PROFILE_KEYS)) {
+				$argsLog .= "\t; unrecognized profile key";
 			}
 			$argsLog .= "\n";
 		}
@@ -109,17 +109,17 @@ class Waverider extends Bot
 		$this->log->debug("Intial sell target price is {$this->sellTarget}");
 
 		if (!$this->buyOnStart) {
-			if (!isset($config['initial_balance'])) {
-				$this->log->debug('initial_balance not configured, fetching balance from API.');
+			if (!isset($profile['initial_balance'])) {
+				$this->log->debug('initial_balance not profileured, fetching balance from API.');
 				$this->cb->loadAccounts();
-				$config['initial_balance'] = $this->getCryptoBalance();
+				$profile['initial_balance'] = $this->getCryptoBalance();
 				$this->log->debug('Fetched '.$this->getCryptoBalance());
 			}
-			$this->coinsHeld = $config['initial_balance'];
+			$this->coinsHeld = $profile['initial_balance'];
 			$this->log->debug('Starting with '.$this->coinsHeld.' coins');
 		}
 
-		$this->setBotState($config['initial_state']);
+		$this->setBotState($profile['initial_state']);
 
 		return true;
 	}
@@ -220,6 +220,7 @@ class Waverider extends Bot
 			if ($loss >= $this->lossBeforeSell) {
 				$this->log->alert("Loss of $loss% is greater than threshold of {$this->lossBeforeSell}%. Price is dropping, selling coins.");
 				$this->sellCrypto($this->coinsHeld);
+				$this->transactionCount++;
 				$this->setBotState(BotState::waitingToBuy);
 			}
 		}
@@ -239,7 +240,7 @@ class Waverider extends Bot
 	{
 		$profit = $this->getBuyProfit();
 		if ($profit > $this->priceSoldAt * $this->minLoss) {
-			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}% below last sell price of \${$this->lastSoldAt}. Attempting to buy.");
+			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}% below last sell price of \${$this->priceSoldAt}. Attempting to buy.");
 			$this->buyPeak = $this->cb->lastaskprice;
 			$this->setBotState(BotState::buying);
 		} else {
@@ -254,8 +255,10 @@ class Waverider extends Bot
 			$gain = ($this->cb->lastaskprice - $this->buyPeak) / $this->buyPeak * 100;
 			$this->log->debug("Price raised by $gain% since reaching low of \${$this->buyPeak}");
 			if ($gain >= $this->gainBeforeBuy) {
-				$this->log->alert("Rise of $gain% is greater than threshold of {$this->gainBeforeSell}%. Price is rising, buying coins.");
+				$this->log->alert("Rise of $gain% is greater than threshold of {$this->gainBeforeBuy}%. Price is rising, buying coins.");
 				$this->buyCrypto($this->buyAmount);
+				$this->transactionCount++;
+				$this->setBotState(BotState::waiitingToSell);
 			}
 		}
 	}
