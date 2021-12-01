@@ -202,12 +202,13 @@ class Waverider extends Bot
 	private function handleSellWait()
 	{
 		$profit = $this->getSellProfit();
-		if ($profit >= $this->priceBoughtAt * $this->minGain) {
-			$this->log->debug("Profit $$profit is greater than target of $".($this->buyAmount * $this->minGain).'. Attempting to sell.');
+		$targetProfit = $this->priceBoughtAt * $this->minGain;
+		if ($profit >= $targetProfit) {
+			$this->log->debug("Profit $$profit is greater than target of $".($targetProfit * $this->coinsHeld).'. Attempting to sell.');
 			$this->sellPeak = $this->cb->lastbidprice;
 			$this->setBotState(BotState::selling);
 		} else {
-			$this->log->info('Waiting until profit of $'.($this->buyAmount * $this->minGain));
+			$this->log->info('Waiting until profit of $'.($targetProfit * $this->coinsHeld));
 		}
 	}
 	private function handleSell()
