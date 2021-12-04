@@ -16,5 +16,23 @@ namespace Cryptotrader
         {
             Product = new CryptoProduct(product);
         }
+
+        public decimal GetCryptoSellPrice()
+        {
+            throw new NotImplementedException();
+        }
+        public decimal GetCryptoBuyPrice()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PlaceSellOrder()
+        {
+            throw new NotImplementedException();
+        }
+        public void PlaceBuyOrder()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
