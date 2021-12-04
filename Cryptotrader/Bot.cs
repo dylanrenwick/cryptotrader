@@ -28,7 +28,7 @@ namespace Cryptotrader
         {
             activeState?.ExitState();
             activeState = newState;
-            activeState.EnterState();
+            activeState.EnterState(this);
             lastStateChange = DateTime.Now;
         }
     }
