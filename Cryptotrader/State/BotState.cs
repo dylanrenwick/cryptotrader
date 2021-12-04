@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cryptotrader.BotState
+namespace Cryptotrader.State
 {
     public abstract class BotState
     {
