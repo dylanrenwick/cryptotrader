@@ -10,8 +10,8 @@ namespace Cryptotrader
     {
         private DateTime lastStateChange;
 
-        private BotState initialState;
-        private BotState activeState;
+        private BotStateBehavior initialState;
+        private BotStateBehavior activeState;
 
         public void Startup()
         {
@@ -24,7 +24,7 @@ namespace Cryptotrader
             activeState.Update();
         }
 
-        private void SetState(BotState newState)
+        private void SetState(BotStateBehavior newState)
         {
             activeState?.ExitState();
             activeState = newState;

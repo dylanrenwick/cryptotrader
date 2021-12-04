@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static Cryptotrader.State.BotState;
+
 namespace Cryptotrader.State
 {
-    public enum BotState
+    public class WaitingToSellBehavior : BotStateBehavior
     {
-        None = 0,
-        Startup,
-        WaitingToSell,
-        Selling,
-        WaitingToBuy,
-        Buying
+        public override BotState State => WaitingToSell;
     }
 }
