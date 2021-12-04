@@ -241,7 +241,7 @@ class Waverider extends Bot
 	{
 		$profit = $this->getBuyProfit();
 		if ($profit > $this->priceSoldAt * $this->minLoss) {
-			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least {$this->minLoss}% below last sell price of \${$this->priceSoldAt}. Attempting to buy.");
+			$this->log->debug("Price is \${$this->cb->lastaskprice}, at least ".($this->minLoss * 100)."% below last sell price of \${$this->priceSoldAt}. Attempting to buy.");
 			$this->buyPeak = $this->cb->lastaskprice;
 			$this->setBotState(BotState::buying);
 		} else {
