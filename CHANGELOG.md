@@ -1,3 +1,9 @@
+# v0.3.7
+* Fixed typo after buying coins
+  
+# v0.3.6
+* Fixed calculating how many coins to sell instead of selling based on `coinsHeld`
+
 # v0.3.5
 * Added `initial_last_sold_price` config option to set last sold price when starting in buying state
 * Updated formatting of bot config output to display all config keys and identify unknown keys
