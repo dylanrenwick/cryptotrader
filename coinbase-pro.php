@@ -35,7 +35,12 @@ class CoinbaseExchange
 	{
 		$this->log->info('Updating prices for '.$product);
         $data = $this->makeRequest('/products/'.$product.'/ticker');
-        if($data===false){ $this->log->warn("Error getting products");return false;}
+
+        if ($data === false || $data === NULL) {
+            $this->log->warn("Error getting products");
+            return false;
+        }
+
         $a = explode('-',$product);
         $crypto=$a[0];
         $currency=$a[1];
