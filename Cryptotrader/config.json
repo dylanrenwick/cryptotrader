@@ -1,0 +1,20 @@
+﻿{
+  "loggers": [
+    {
+      "type": "console",
+      "level": "debug"
+    },
+    {
+      "type": "file",
+      "level": "debug",
+      "path": "log\\logfile.log"
+    }
+  ],
+  "api": {
+    "key": "API KEY",
+    "secret": "API SECRET",
+    "passphrase": "API PASSPHRASE",
+    "cash": "USDC",
+    "coin": "ETH"
+  }
+}
