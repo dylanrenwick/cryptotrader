@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
+using Cryptotrader.Logging;
 using Cryptotrader.State;
 
 namespace Cryptotrader
@@ -12,6 +11,13 @@ namespace Cryptotrader
 
         private BotStateBehavior initialState;
         private BotStateBehavior activeState;
+
+        private Logger logger;
+
+        public Bot(Logger log)
+        {
+            logger = log;
+        }
 
         public void Startup()
         {
