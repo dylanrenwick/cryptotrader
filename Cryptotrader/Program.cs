@@ -14,19 +14,19 @@ namespace Cryptotrader
         private const string CONFIG_PATH = @"config.json";
 
         private static readonly ConfigLoader cfgLoader = new();
-        private static Logger logger;
+        private static Logger log;
 
         private static CoinbaseDataProvider coinbaseDataProvider;
 
         private static async Task Main(string[] args)
         {
             await LoadConfig();
-            logger = new Logger(cfgLoader.GetLogDestination());
-            logger.Debug("Logger initialized");
+            log = new Logger(cfgLoader.GetLogDestination());
+            log.Debug("Logger initialized");
 
-            logger.Debug("Loading API...");
+            log.Debug("Loading API...");
             await CreateDataProvider();
-            logger.Debug("API Loaded");
+            log.Debug("API Loaded");
         }
 
         private static async Task LoadConfig()
@@ -37,7 +37,7 @@ namespace Cryptotrader
         private static async Task CreateDataProvider()
         {
             var apiConfig = cfgLoader.GetApiConfig();
-            var apiLogger = logger.Label("API");
+            var apiLogger = log.Label("API");
 
             coinbaseDataProvider = new(
                 apiLogger,
@@ -47,6 +47,13 @@ namespace Cryptotrader
                 apiConfig.Cash,
                 apiConfig.Coin
             );
+
+            if (coinbaseDataProvider.IsSimulation)
+            {
+                log.Alert("API is in Simulation Mode");
+                log.Info("API transactions will not be sent to the API");
+                log.Info("Transactions will not be made, only simulated");
+            }
 
             await coinbaseDataProvider.FetchAccounts();
         }
