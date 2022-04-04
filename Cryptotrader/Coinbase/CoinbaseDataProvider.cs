@@ -16,6 +16,8 @@ namespace Cryptotrader.Coinbase
     {
         private const string API_URL = "https://api.pro.coinbase.com";
 
+        public bool IsSimulation { get; set; }
+
         private string apiKey;
         private string apiSecret;
         private string apiPassphrase;
@@ -43,6 +45,14 @@ namespace Cryptotrader.Coinbase
             apiSecret = secret;
             apiPassphrase = passphrase;
 
+            if (string.IsNullOrWhiteSpace(apiKey)
+                || string.IsNullOrWhiteSpace(apiSecret)
+                || string.IsNullOrWhiteSpace(apiPassphrase))
+            {
+                log.Info("API info empty or invalid, defaulting to Simulation Mode");
+                IsSimulation = true;
+            }
+
             this.cash = cash.ToUpper();
             this.coin = coin.ToUpper();
         }
@@ -67,6 +77,8 @@ namespace Cryptotrader.Coinbase
 
         public async Task FetchAccounts()
         {
+            if (IsSimulation) return;
+
             string response = await GetRequest("/accounts");
             CoinbaseAccount[] accounts = JsonSerializer.Deserialize<CoinbaseAccount[]>(response);
             accounts.Where(a => a.IsTradingEnabled && a.IsInUse)
