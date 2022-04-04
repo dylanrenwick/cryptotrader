@@ -11,9 +11,6 @@
     }
   ],
   "api": {
-    "key": "API KEY",
-    "secret": "API SECRET",
-    "passphrase": "API PASSPHRASE",
     "cash": "USDC",
     "coin": "ETH"
   }
