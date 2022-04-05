@@ -8,5 +8,7 @@ namespace Cryptotrader.Config
         public LogDestinationConfig[] DestinationConfigs { get; set; }
         [JsonPropertyName("api")]
         public ApiConfig ApiConfig { get; set; }
+        [JsonPropertyName("bot")]
+        public BotConfig BotConfig { get; set; }
     }
 }
