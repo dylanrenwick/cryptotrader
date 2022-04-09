@@ -32,6 +32,9 @@ namespace Cryptotrader
             log.Debug("Loading Bot...");
             CreateBot();
             log.Debug("Bot loaded");
+
+            log.Debug("Starting Bot...");
+            bot.Startup();
         }
 
         private static async Task LoadConfig()
