@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -77,8 +77,6 @@ namespace Cryptotrader.Coinbase
 
         public async Task FetchAccounts()
         {
-            if (IsSimulation) return;
-
             string response = await GetRequest("/accounts");
             CoinbaseAccount[] accounts = JsonSerializer.Deserialize<CoinbaseAccount[]>(response);
             accounts.Where(a => a.IsTradingEnabled && a.IsInUse)
@@ -88,6 +86,8 @@ namespace Cryptotrader.Coinbase
 
         private async Task PostRequest(string endpoint, string postData)
         {
+            if (IsSimulation) return;
+
             log.Debug($"Requesting {endpoint} with\n{postData}");
             using (var web = new HttpClient())
             {
@@ -101,6 +101,8 @@ namespace Cryptotrader.Coinbase
 
         private async Task<string> GetRequest(string endpoint)
         {
+            if (IsSimulation) return string.Empty;
+
             log.Debug($"Requesting {endpoint}");
             using (var web = new HttpClient())
             {
