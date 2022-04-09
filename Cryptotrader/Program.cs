@@ -15,6 +15,7 @@ namespace Cryptotrader
 
         private static readonly ConfigLoader cfgLoader = new();
         private static Logger log;
+        private static Bot bot;
 
         private static CoinbaseDataProvider coinbaseDataProvider;
 
@@ -27,6 +28,10 @@ namespace Cryptotrader
             log.Debug("Loading API...");
             await CreateDataProvider();
             log.Debug("API loaded");
+
+            log.Debug("Loading Bot...");
+            CreateBot();
+            log.Debug("Bot loaded");
         }
 
         private static async Task LoadConfig()
@@ -56,6 +61,11 @@ namespace Cryptotrader
             }
 
             await coinbaseDataProvider.FetchAccounts();
+        }
+
+        private static void CreateBot()
+        {
+            bot = new Bot(log.Label("BOT"));
         }
     }
 }
