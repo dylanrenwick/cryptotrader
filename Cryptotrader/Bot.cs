@@ -14,7 +14,8 @@ namespace Cryptotrader
 
         private Logger log;
 
-        public Bot(Logger log)
+        private int updateInterval;
+
         public Bot(Logger logger)
         {
             log = logger;
@@ -26,7 +27,12 @@ namespace Cryptotrader
             SetState(initialState);
         }
 
-        public void Update()
+        public void LoadConfig(BotConfig config)
+        {
+            updateInterval = config.UpdateInterval;
+        }
+
+        private void Update()
         {
             activeState.Update();
         }
