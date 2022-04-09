@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace Cryptotrader
 
             log.Debug("Loading API...");
             await CreateDataProvider();
-            log.Debug("API Loaded");
+            log.Debug("API loaded");
         }
 
         private static async Task LoadConfig()
