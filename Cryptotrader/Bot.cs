@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 using Cryptotrader.Logging;
 using Cryptotrader.State;
@@ -21,15 +22,29 @@ namespace Cryptotrader
             log = logger;
         }
 
-        public void Startup()
+        public async Task Startup()
         {
             if (initialState == null) throw new InvalidOperationException("Initial State not set!");
             SetState(initialState);
+            
+            await RunBot();
         }
 
         public void LoadConfig(BotConfig config)
         {
             updateInterval = config.UpdateInterval;
+        }
+
+        private async Task RunBot()
+        {
+            while (activeState != null)
+            {
+                var rateLimit = Task.Delay(TimeSpan.FromSeconds(updateInterval));
+
+                Update();
+
+                await rateLimit;
+            }
         }
 
         private void Update()
