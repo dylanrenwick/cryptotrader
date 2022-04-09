@@ -78,9 +78,14 @@ namespace Cryptotrader.Coinbase
         public async Task FetchAccounts()
         {
             string response = await GetRequest("/accounts");
-            CoinbaseAccount[] accounts = JsonSerializer.Deserialize<CoinbaseAccount[]>(response);
-            accounts.Where(a => a.IsTradingEnabled && a.IsInUse)
-                .ToList().ForEach(a => UpdateAccount(a));
+
+            CoinbaseAccount[] accounts = new CoinbaseAccount[0];
+            if (!string.IsNullOrWhiteSpace(response))
+            {
+                accounts = JsonSerializer.Deserialize<CoinbaseAccount[]>(response);
+                foreach (var account in accounts.Where(a => a.IsTradingEnabled && a.IsInUse))
+                    UpdateAccount(account);
+            }
             log.Debug($"Loaded {accounts.Count()} valid accounts");
         }
 
