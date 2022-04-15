@@ -62,6 +62,19 @@ namespace Cryptotrader
             this.config = config;
         }
 
+        public decimal GetBuyProfit()
+        {
+            decimal buyPrice = exchange.CurrentBuyPrice;
+            decimal profit = historicalSellPrices.Current - buyPrice;
+            return profit;
+        }
+        public decimal GetSellProfit()
+        {
+            decimal sellPrice = exchange.CurrentSellPrice;
+            decimal profit = sellPrice - historicalBuyPrices.Current;
+            return profit;
+        }
+
         public void BuyCrypto()
         {
             log.Alert($"Buying ${config.AmountToBuy} in crypto");
