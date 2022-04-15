@@ -17,7 +17,7 @@ namespace Cryptotrader
         private static Logger log;
         private static Bot bot;
 
-        private static CoinbaseDataProvider coinbaseDataProvider;
+        private static CoinbaseExchange coinbaseDataProvider;
 
         private static async Task Main(string[] args)
         {
@@ -68,7 +68,10 @@ namespace Cryptotrader
 
         private static void CreateBot()
         {
-            bot = new Bot(log.Label("BOT"));
+            bot = new Bot(
+                log.Label("BOT"),
+                coinbaseDataProvider
+            );
         }
     }
 }

@@ -14,13 +14,18 @@ namespace Cryptotrader
         private BotStateBehavior initialState;
         private BotStateBehavior activeState;
 
+        private ICryptoExchange exchange;
+
         private Logger log;
 
         private int updateInterval;
 
-        public Bot(Logger logger)
-        {
+        public Bot(
+            Logger logger,
+            ICryptoExchange dataProvider,
+        ) {
             log = logger;
+            exchange = dataProvider;
         }
 
         public async Task Startup()
@@ -34,6 +39,18 @@ namespace Cryptotrader
         public void LoadConfig(BotConfig config)
         {
             updateInterval = config.UpdateInterval;
+        public void BuyCrypto()
+        {
+            log.Alert($"Buying ${config.AmountToBuy} in crypto");
+
+            exchange.PlaceBuyOrder(config.AmountToBuy);
+        }
+
+        public void SellCrypto()
+        {
+            log.Alert($"Selling ${config.AmountToBuy} in crypto");
+
+            exchange.PlaceSellOrder(config.AmountToBuy);
         }
 
         private async Task RunBot()
@@ -50,6 +67,8 @@ namespace Cryptotrader
 
         private void Update()
         {
+            exchange.UpdatePrices();
+
             activeState.Update();
         }
 
