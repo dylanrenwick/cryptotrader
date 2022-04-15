@@ -20,6 +20,8 @@ namespace Cryptotrader
         public decimal CurrentBuyPrice => exchange.CurrentBuyPrice;
         public decimal CurrentSellPrice => exchange.CurrentSellPrice;
 
+        public bool IsSimulation { get; private set; }
+
         private DateTime lastStateChange;
 
         private BotStateBehavior initialState;
@@ -36,9 +38,11 @@ namespace Cryptotrader
         public Bot(
             Logger logger,
             ICryptoExchange dataProvider,
+            bool sim = false
         ) {
             log = logger;
             exchange = dataProvider;
+            IsSimulation = sim;
         }
 
         public async Task Startup()
@@ -61,6 +65,7 @@ namespace Cryptotrader
         public void BuyCrypto()
         {
             log.Alert($"Buying ${config.AmountToBuy} in crypto");
+            if (IsSimulation) return;
 
             exchange.PlaceBuyOrder(config.AmountToBuy);
         }
@@ -68,6 +73,7 @@ namespace Cryptotrader
         public void SellCrypto()
         {
             log.Alert($"Selling ${config.AmountToBuy} in crypto");
+            if (IsSimulation) return;
 
             exchange.PlaceSellOrder(config.AmountToBuy);
         }
