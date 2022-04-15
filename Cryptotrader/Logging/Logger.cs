@@ -33,7 +33,11 @@ namespace Cryptotrader.Logging
             Destination?.Log(message);
         }
 
-        public void Crit(string message) => Log(message, LogLevel.Crit);
+        public void Crit(string message)
+        {
+            Log(message, LogLevel.Crit);
+            Environment.Exit(1);
+        }
         public void Error(string message) => Log(message, LogLevel.Error);
         public void Warn(string message) => Log(message, LogLevel.Warn);
         public void Alert(string message) => Log(message, LogLevel.Alert);
