@@ -1,24 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.Json;
+
+using Cryptotrader.Logging;
 
 using static Cryptotrader.State.BotState;
 
 namespace Cryptotrader.State
 {
-    public class BotStateBehavior
+    public abstract class BotStateBehavior
     {
         public Bot Bot { get; private set; }
 
-        public virtual void EnterState(Bot bot)
+        protected Logger log;
+
+        public virtual void EnterState(Bot bot, Logger logger)
         {
             Bot = bot;
+            log = logger;
         }
         public virtual void ExitState() { }
 
-        public virtual void Update() { }
+        public abstract BotState State { get; }
 
-        public virtual BotState State => None;
+        public abstract void Update();
+
+        public virtual void ReadFromJson(ref Utf8JsonReader reader) { }
+        public virtual void WriteToJson(Utf8JsonWriter writer)
+        {
+            writer.WriteString("state", Enum.GetName(typeof(BotState), State));
+        }
 
         public static BotStateBehavior BehaviorFromBotState(BotState state)
         {
@@ -36,7 +46,7 @@ namespace Cryptotrader.State
                     return new BuyingBehavior();
                 case None:
                 default:
-                    return new BotStateBehavior();
+                    return null;
             }
         }
     }

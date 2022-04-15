@@ -9,6 +9,17 @@ namespace Cryptotrader
 {
     public class Bot
     {
+        public decimal DropBeforeBuy => config.DropBeforeBuy;
+        public decimal ReboundBeforeBuy => config.ReboundBeforeBuy;
+        public decimal GainBeforeSell => config.GainBeforeSell;
+        public decimal ReboundBeforeSell => config.ReboundBeforeSell;
+
+        public decimal LastBoughtAt => historicalBuyPrices.Current;
+        public decimal LastSoldAt => historicalSellPrices.Current;
+
+        public decimal CurrentBuyPrice => exchange.CurrentBuyPrice;
+        public decimal CurrentSellPrice => exchange.CurrentSellPrice;
+
         private DateTime lastStateChange;
 
         private BotStateBehavior initialState;
@@ -61,6 +72,14 @@ namespace Cryptotrader
             exchange.PlaceSellOrder(config.AmountToBuy);
         }
 
+        public void SetState(BotStateBehavior newState)
+        {
+            activeState?.ExitState();
+            activeState = newState;
+            activeState.EnterState(this, log);
+            lastStateChange = DateTime.Now;
+        }
+
         private async Task RunBot()
         {
             TimeSpan interval = TimeSpan.FromSeconds(config.UpdateInterval);
@@ -80,14 +99,6 @@ namespace Cryptotrader
             exchange.UpdatePrices();
 
             activeState.Update();
-        }
-
-        private void SetState(BotStateBehavior newState)
-        {
-            activeState?.ExitState();
-            activeState = newState;
-            activeState.EnterState(this);
-            lastStateChange = DateTime.Now;
         }
     }
 }
