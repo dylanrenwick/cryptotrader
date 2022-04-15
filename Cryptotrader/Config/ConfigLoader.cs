@@ -21,8 +21,8 @@ namespace Cryptotrader.Config
             }
         };
 
-private FileStream jsonFileStream;
-        private ConfigState? configState;
+        private FileStream jsonFileStream;
+        private ConfigState configState;
 
         public LogDestination GetLogDestination()
         {

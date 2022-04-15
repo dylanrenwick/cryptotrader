@@ -15,6 +15,14 @@
     "coin": "ETH"
   },
   "bot": {
-    "interval": 5
+    "interval": 5,
+    "initial_state": "Startup",
+
+    "drop_before_buy": 0.5,
+    "rebound_before_buy": 0.5,
+    "gain_before_sell": 0.5,
+    "rebound_before_sell": 0.5,
+
+    "buy_amount": 100
   }
 }

@@ -18,7 +18,7 @@ namespace Cryptotrader.Config
         [JsonPropertyName("level")]
         public LogLevel LogLevel { get; set; }
         [JsonPropertyName("path")]
-        public string? FilePath { get; set; }
+        public string FilePath { get; set; }
 
         public LogDestination GetDestination()
         {

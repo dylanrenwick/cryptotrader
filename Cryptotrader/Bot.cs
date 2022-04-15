@@ -17,8 +17,10 @@ namespace Cryptotrader
         private ICryptoExchange exchange;
 
         private Logger log;
+        private BotConfig config;
 
-        private int updateInterval;
+        private HistoricalValue<decimal> historicalBuyPrices;
+        private HistoricalValue<decimal> historicalSellPrices;
 
         public Bot(
             Logger logger,
@@ -30,7 +32,11 @@ namespace Cryptotrader
 
         public async Task Startup()
         {
-            if (initialState == null) throw new InvalidOperationException("Initial State not set!");
+            if (config == null) throw new InvalidOperationException("Bot config not loaded!");
+            if (initialState == null)
+            {
+                if (config.InitialState == BotState.None) throw new InvalidOperationException("Initial State not set!");
+            }
             SetState(initialState);
             
             await RunBot();
@@ -38,7 +44,9 @@ namespace Cryptotrader
 
         public void LoadConfig(BotConfig config)
         {
-            updateInterval = config.UpdateInterval;
+            this.config = config;
+        }
+
         public void BuyCrypto()
         {
             log.Alert($"Buying ${config.AmountToBuy} in crypto");
@@ -55,9 +63,11 @@ namespace Cryptotrader
 
         private async Task RunBot()
         {
+            TimeSpan interval = TimeSpan.FromSeconds(config.UpdateInterval);
+
             while (activeState != null)
             {
-                var rateLimit = Task.Delay(TimeSpan.FromSeconds(updateInterval));
+                var rateLimit = Task.Delay(interval);
 
                 Update();
 
