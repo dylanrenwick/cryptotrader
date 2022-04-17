@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Cryptotrader
+namespace Cryptotrader.Api
 {
     public interface ICryptoExchange
     {

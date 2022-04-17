@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Cryptotrader.Coinbase
+namespace Cryptotrader.Api.Coinbase
 {
-    internal class ApiError
+    public class CoinbaseApiError
     {
         [JsonPropertyName("message")]
         public string Message { get; set; }

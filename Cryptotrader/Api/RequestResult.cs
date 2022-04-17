@@ -1,6 +1,6 @@
-﻿namespace Cryptotrader.Coinbase
+﻿namespace Cryptotrader.Api
 {
-    internal class RequestResult<T>
+    public class RequestResult<T>
     {
         public T Result { get; private set; }
 

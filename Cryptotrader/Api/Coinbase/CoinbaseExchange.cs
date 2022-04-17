@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 using Cryptotrader.Logging;
 
-namespace Cryptotrader.Coinbase
+namespace Cryptotrader.Api.Coinbase
 {
     public class CoinbaseExchange : ICryptoExchange
     {
@@ -66,10 +66,10 @@ namespace Cryptotrader.Coinbase
         public async Task UpdatePrices()
         {
             log.Info("Updating prices");
-            RequestResult<ProductTicker> response = await GetProductTicker();
+            RequestResult<CoinbaseProductTicker> response = await GetProductTicker();
             if (response.IsSuccess)
             {
-                ProductTicker productTicker = response.Result;
+                CoinbaseProductTicker productTicker = response.Result;
                 historicalBuyPrices.Set(productTicker.BuyPrice);
                 historicalSellPrices.Set(productTicker.SellPrice);
             }
@@ -123,18 +123,18 @@ namespace Cryptotrader.Coinbase
             }
         }
 
-        private async Task<RequestResult<ProductTicker>> GetProductTicker()
+        private async Task<RequestResult<CoinbaseProductTicker>> GetProductTicker()
         {
             RequestResult<string> response = await GetRequest($"/products/{product}/ticker");
             if (response.IsSuccess)
             {
                 string json = response.Result;
-                var productTicker = JsonSerializer.Deserialize<ProductTicker>(json);
-                return RequestResult<ProductTicker>.Success(productTicker);
+                var productTicker = JsonSerializer.Deserialize<CoinbaseProductTicker>(json);
+                return RequestResult<CoinbaseProductTicker>.Success(productTicker);
             }
             else
             {
-                return RequestResult<ProductTicker>.Failure(response.ErrorMessage);
+                return RequestResult<CoinbaseProductTicker>.Failure(response.ErrorMessage);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Cryptotrader.Coinbase
             => await PostRequest(endpoint, JsonSerializer.Serialize(postData));
         private async Task<RequestResult<string>> PostRequest(string endpoint, string postData)
         {
-            if (IsSimulation) return RequestResult<string>.Success(string.Empty); ;
+            if (IsSimulation) return RequestResult<string>.Success(string.Empty);
 
             log.Debug($"Requesting {endpoint} with\n{postData}");
 
@@ -174,15 +174,15 @@ namespace Cryptotrader.Coinbase
             }
             else
             {
-                ApiError error = await ParseErrorMessage(response);
+                CoinbaseApiError error = await ParseErrorMessage(response);
                 return RequestResult<string>.Failure(error.Message);
             }
         }
 
-        private async Task<ApiError> ParseErrorMessage(HttpResponseMessage response)
+        private async Task<CoinbaseApiError> ParseErrorMessage(HttpResponseMessage response)
         {
             var stream = await response.Content.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<ApiError>(stream);
+            return await JsonSerializer.DeserializeAsync<CoinbaseApiError>(stream);
         }
 
         private HttpRequestMessage BuildMessage(string endpoint, HttpMethod method)

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace Cryptotrader.Coinbase
+namespace Cryptotrader.Api.Coinbase
 {
-    internal class ProductTicker
+    internal class CoinbaseProductTicker
     {
         [JsonPropertyName("trade_id")]
         public int TradeID { get; set; }
