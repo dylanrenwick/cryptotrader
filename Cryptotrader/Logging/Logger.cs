@@ -16,7 +16,7 @@ namespace Cryptotrader.Logging
 
         public Logger Label(string label)
         {
-            return new Logger(new LoggerLogDestination(this, LogLevel.Debug), label);
+            return new Logger(new LoggerLogDestination(this), label);
         }
 
         public void Log(string message, LogLevel level)
