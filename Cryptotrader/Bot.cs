@@ -105,18 +105,7 @@ namespace Cryptotrader
             {
                 var rateLimit = Task.Delay(interval);
 
-                try
-                {
-                    Update();
-                }
-                catch (CriticalException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    log.Exception(ex);
-                }
+                Update();
 
                 await rateLimit;
             }
@@ -124,9 +113,20 @@ namespace Cryptotrader
 
         private void Update()
         {
-            exchange.UpdatePrices();
+            try
+            {
+                exchange.UpdatePrices();
 
-            activeState.Update();
+                activeState.Update();
+            }
+            catch (CriticalException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                log.Exception(ex);
+            }
         }
     }
 }
