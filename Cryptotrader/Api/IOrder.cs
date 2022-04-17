@@ -5,6 +5,7 @@
         public DateTime CreatedAt { get; }
         public decimal Amount { get; }
         public OrderType OrderType { get; }
+        public string Currency { get; }
     }
 
     public enum OrderType

@@ -9,9 +9,9 @@ namespace Cryptotrader.Api.Coinbase
         [JsonPropertyName("price")]
         public decimal Price { get; set; }
         [JsonPropertyName("size")]
-        public decimal Amount { get; set; }
+        public decimal Size { get; set; }
         [JsonPropertyName("product_id")]
-        public string Product { get; set; }
+        public string Currency { get; set; }
         [JsonPropertyName("profile_id")]
         public string ProfileID { get; set; }
         [JsonPropertyName("side")]
@@ -23,11 +23,11 @@ namespace Cryptotrader.Api.Coinbase
         [JsonPropertyName("post_only")]
         public bool PostOnly { get; set; }
         [JsonPropertyName("created_at")]
-        public DateTime Created { get; set; }
+        public DateTime CreatedAt { get; set; }
         [JsonPropertyName("fill_fees")]
         public decimal FillFees { get; set; }
         [JsonPropertyName("filled_size")]
-        public decimal FilledSize { get; set; }
+        public decimal Amount { get; set; }
         [JsonPropertyName("executed_value")]
         public decimal ExecutedValue { get; set; }
         [JsonPropertyName("status")]
@@ -35,16 +35,16 @@ namespace Cryptotrader.Api.Coinbase
         [JsonPropertyName("settled")]
         public bool Settled { get; set; }
 
-        public DateTime CreatedAt => Created;
+        [JsonIgnore]
         public OrderType OrderType
         {
             get
             {
-                switch (this.Type)
+                switch (this.Side.ToLower())
                 {
                     case "buy": return OrderType.Buy;
                     case "sell": return OrderType.Sell;
-                    default: throw new Exception();
+                    default: throw new Exception($"Invalid order side: {this.Side}");
                 }
             }
         }
