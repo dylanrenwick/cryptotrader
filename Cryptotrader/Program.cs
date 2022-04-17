@@ -6,7 +6,7 @@ namespace Cryptotrader
 {
     internal class Program
     {
-        private const string CONFIG_PATH = @"config.json";
+        private static string configPath = @"config.json";
 
         private static readonly ConfigLoader cfgLoader = new();
         private static Logger log;
@@ -55,12 +55,17 @@ namespace Cryptotrader
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-sim") isSimulation = true;
+                else if (args[i] == "-c")
+                {
+                    if (i == args.Length - 1) throw new Exception("Expected value for -c flag");
+                    configPath = args[++i];
+                }
             }
         }
 
         private static async Task LoadConfig()
         {
-            await cfgLoader.LoadConfig(CONFIG_PATH);
+            await cfgLoader.LoadConfig(configPath);
         }
 
         private static async Task CreateDataProvider()
