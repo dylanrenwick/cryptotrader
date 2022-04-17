@@ -31,7 +31,7 @@ namespace Cryptotrader
                 log.Debug("Bot loaded");
 
                 log.Debug("Starting Bot...");
-                bot.Startup();
+                await bot.Startup();
             }
             catch (CriticalException)
             {
