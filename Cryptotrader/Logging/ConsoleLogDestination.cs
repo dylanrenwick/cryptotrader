@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cryptotrader.Logging
+﻿namespace Cryptotrader.Logging
 {
     public class ConsoleLogDestination : LeveledLogDestination
     {

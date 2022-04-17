@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 using Cryptotrader.Api;
 using Cryptotrader.Config;
 using Cryptotrader.Logging;

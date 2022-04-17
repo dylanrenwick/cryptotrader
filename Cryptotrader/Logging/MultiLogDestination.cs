@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Cryptotrader.Logging
+﻿namespace Cryptotrader.Logging
 {
     public class MultiLogDestination : ILogDestination
     {

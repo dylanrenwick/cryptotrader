@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Cryptotrader.Api.Coinbase;
+﻿using Cryptotrader.Api.Coinbase;
 using Cryptotrader.Config;
 using Cryptotrader.Logging;
 

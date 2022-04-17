@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Cryptotrader.Logging
+﻿namespace Cryptotrader.Logging
 {
     public class LogMessage
     {

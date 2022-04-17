@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Cryptotrader
+﻿namespace Cryptotrader
 {
     public class HistoricalValue<T>
     {
