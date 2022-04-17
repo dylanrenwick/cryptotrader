@@ -71,6 +71,8 @@ namespace Cryptotrader
                 log.Label("BOT"),
                 coinbaseDataProvider
             );
+
+            bot.LoadConfig(cfgLoader.GetBotConfig());
         }
     }
 }
