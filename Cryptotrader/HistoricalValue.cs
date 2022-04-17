@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cryptotrader
 {
-    internal class HistoricalValue<T>
+    public class HistoricalValue<T>
     {
         public T Current { get; private set; }
 
