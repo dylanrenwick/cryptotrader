@@ -1,4 +1,4 @@
-﻿using Cryptotrader.Api.Coinbase;
+using Cryptotrader.Api.Coinbase;
 using Cryptotrader.Config;
 using Cryptotrader.Logging;
 
@@ -20,21 +20,32 @@ namespace Cryptotrader
             log = new Logger(cfgLoader.GetLogDestination());
             log.Debug("Logger initialized");
 
-            log.Debug("Loading API...");
-            await CreateDataProvider();
-            log.Debug("API loaded");
+            try
+            {
+                log.Debug("Loading API...");
+                await CreateDataProvider();
+                log.Debug("API loaded");
 
-            log.Debug("Loading Bot...");
-            CreateBot();
-            log.Debug("Bot loaded");
+                log.Debug("Loading Bot...");
+                CreateBot();
+                log.Debug("Bot loaded");
 
-            log.Debug("Starting Bot...");
-            bot.Startup();
+                log.Debug("Starting Bot...");
+                bot.Startup();
+            }
+            catch (CriticalException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                log.Exception(ex);
+            }
         }
 
         private static async Task LoadConfig()
         {
-            if (!await cfgLoader.LoadConfig(CONFIG_PATH)) throw new Exception("Could not load config");
+            await cfgLoader.LoadConfig(CONFIG_PATH);
         }
 
         private static async Task CreateDataProvider()

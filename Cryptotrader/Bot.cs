@@ -106,20 +106,9 @@ namespace Cryptotrader
 
         private void Update()
         {
-            try
-            {
-                exchange.UpdatePrices();
+            exchange.UpdatePrices();
 
-                activeState.Update(exchange, profile);
-            }
-            catch (CriticalException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                log.Exception(ex);
-            }
+            activeState.Update(exchange, profile);
         }
     }
 }
