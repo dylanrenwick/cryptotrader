@@ -8,7 +8,7 @@ namespace Cryptotrader.State
     {
         public override BotState State => Selling;
 
-        public override void Update(ICryptoExchange api, BotProfile profile)
+        public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             throw new NotImplementedException();
         }

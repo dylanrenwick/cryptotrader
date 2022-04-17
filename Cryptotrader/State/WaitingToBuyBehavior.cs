@@ -8,7 +8,7 @@ namespace Cryptotrader.State
     {
         public override BotState State => WaitingToBuy;
 
-        public override void Update(ICryptoExchange api, BotProfile profile)
+        public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             decimal profit = Bot.GetBuyProfit();
             if (profit > Bot.LastSoldAt * profile.LossThreshold)

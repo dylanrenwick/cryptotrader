@@ -105,11 +105,11 @@ namespace Cryptotrader
             }
         }
 
-        private void Update()
+        private async Task Update()
         {
-            exchange.UpdatePrices();
+            await exchange.UpdatePrices();
 
-            activeState.Update(exchange, profile);
+            await activeState.Update(exchange, profile);
         }
     }
 }

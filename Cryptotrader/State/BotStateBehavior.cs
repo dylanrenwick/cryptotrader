@@ -23,7 +23,7 @@ namespace Cryptotrader.State
 
         public abstract BotState State { get; }
 
-        public abstract void Update(ICryptoExchange api, BotProfile profile);
+        public abstract Task Update(ICryptoExchange api, BotProfile profile);
 
         public virtual void ReadFromJson(ref Utf8JsonReader reader) { }
         public virtual void WriteToJson(Utf8JsonWriter writer)

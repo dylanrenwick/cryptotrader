@@ -21,7 +21,7 @@ namespace Cryptotrader.State
             lowestPrice = low;
         }
 
-        public override void Update(ICryptoExchange api, BotProfile profile)
+        public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             if (api.CurrentBuyPrice < lowestPrice)
             {

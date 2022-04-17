@@ -1,4 +1,4 @@
-﻿using Cryptotrader.Api;
+using Cryptotrader.Api;
 using Cryptotrader.Config;
 using static Cryptotrader.State.BotState;
 
@@ -8,7 +8,7 @@ namespace Cryptotrader.State
     {
         public override BotState State => Startup;
 
-        public override void Update(ICryptoExchange api, BotProfile profile)
+        public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             throw new NotImplementedException();
         }
