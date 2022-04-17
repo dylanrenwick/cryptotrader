@@ -31,6 +31,12 @@
             Destination?.Log(message);
         }
 
+        public void Exception(Exception ex)
+        {
+            string message = $"Caught unhandled exception of type {ex.GetType()}, terminating.";
+            Log(message, LogLevel.Crit);
+            throw new CriticalException(message, ex);
+        }
         public void Crit(string message)
         {
             Log(message, LogLevel.Crit);
@@ -47,6 +53,7 @@
     {
         public CriticalException(): base() { }
         public CriticalException(string message) : base(message) { }
+        public CriticalException(string message, Exception inner) : base(message, inner) { }
     }
 
     public enum LogLevel

@@ -205,4 +205,49 @@ public class LoggerTest
             logDestination.Verify(x => x.Log(It.IsAny<LogMessage>()), Times.Once);
         }
     }
+
+    [Fact]
+    public void Exception_ThrowsException()
+    {
+        Logger log = new(logDestination.Object);
+
+        Assert.Throws<CriticalException>(() => log.Exception(new System.Exception()));
+    }
+
+    [Fact]
+    public void Exception_LogsMessage()
+    {
+        LogMessage? message = null;
+
+        logDestination.Setup(x => x.Log(It.IsAny<LogMessage>()))
+            .Callback<LogMessage>(x => message = x).Verifiable();
+        Logger log = new(logDestination.Object);
+
+        try { log.Exception(new System.Exception()); }
+        catch (CriticalException) { }
+        finally
+        {
+            Assert.NotNull(message);
+            Assert.Equal(LogLevel.Crit, message?.Level);
+
+            logDestination.Verify(x => x.Log(It.IsAny<LogMessage>()), Times.Once);
+        }
+    }
+
+    [Fact]
+    public void Exception_PassesException()
+    {
+        LogMessage? message = null;
+
+        logDestination.Setup(x => x.Log(It.IsAny<LogMessage>()))
+            .Callback<LogMessage>(x => message = x).Verifiable();
+        Logger log = new(logDestination.Object);
+
+        var ex = new System.Exception();
+        try { log.Exception(ex); }
+        catch (CriticalException critEx)
+        {
+            Assert.Equal(ex, critEx.InnerException);
+        }
+    }
 }
