@@ -51,6 +51,7 @@ namespace Cryptotrader.Api.Coinbase
             if (result.IsSuccess)
             {
                 var wallets = result.Result;
+                log.Alert("Api connected and authenticated. Active wallets:");
                 foreach ((var currency, var wallet) in wallets)
                 {
                     if (wallet.Balance > 0) log.Info($"{currency.PadRight(6)}> {wallet.Balance}");
