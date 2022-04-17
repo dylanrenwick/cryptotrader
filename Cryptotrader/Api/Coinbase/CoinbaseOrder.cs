@@ -29,7 +29,7 @@ namespace Cryptotrader.Api.Coinbase
         [JsonPropertyName("filled_size")]
         public decimal Amount { get; set; }
         [JsonPropertyName("executed_value")]
-        public decimal ExecutedValue { get; set; }
+        public decimal Value { get; set; }
         [JsonPropertyName("status")]
         public string Status { get; set; }
         [JsonPropertyName("settled")]
