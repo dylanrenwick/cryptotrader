@@ -45,6 +45,8 @@ namespace Cryptotrader
                 initialState = BotStateBehavior.BehaviorFromBotState(profile.InitialState);
             }
             SetState(initialState);
+
+            log.Alert("Cryptotrader starting up");
             
             await RunBot();
         }
