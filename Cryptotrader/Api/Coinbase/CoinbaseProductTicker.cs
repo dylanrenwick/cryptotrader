@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Cryptotrader.Api.Coinbase
 {
-    internal class CoinbaseProductTicker
+    public class CoinbaseProductTicker
     {
         [JsonPropertyName("trade_id")]
         public int TradeID { get; set; }

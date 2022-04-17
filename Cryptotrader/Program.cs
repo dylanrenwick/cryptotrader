@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Cryptotrader.Coinbase;
+using Cryptotrader.Api.Coinbase;
 using Cryptotrader.Config;
 using Cryptotrader.Logging;
 
@@ -53,15 +53,6 @@ namespace Cryptotrader
                 apiConfig.Cash,
                 apiConfig.Coin
             );
-
-            if (coinbaseDataProvider.IsSimulation)
-            {
-                log.Alert("API is in Simulation Mode");
-                log.Info("API transactions will not be sent to the API");
-                log.Info("Transactions will not be made, only simulated");
-            }
-
-            await coinbaseDataProvider.FetchAccounts();
         }
 
         private static void CreateBot()
