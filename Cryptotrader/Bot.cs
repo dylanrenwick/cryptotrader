@@ -42,6 +42,7 @@ namespace Cryptotrader
             if (initialState == null)
             {
                 if (profile.InitialState == BotState.None) throw new InvalidOperationException("Initial State not set!");
+                initialState = BotStateBehavior.BehaviorFromBotState(profile.InitialState);
             }
             SetState(initialState);
             
