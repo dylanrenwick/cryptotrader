@@ -70,17 +70,21 @@ namespace Cryptotrader.Api.Coinbase
             }
         }
 
-        public async Task<bool> PlaceBuyOrder(decimal amount)
+        public async Task<IOrder> PlaceBuyOrder(decimal amount)
         {
             var response = await api.PlaceOrder(amount, "buy", product);
-
-            return response.IsSuccess;
+            return response.Unwrap();
         }
-        public async Task<bool> PlaceSellOrder(decimal amount)
+        public async Task<IOrder> PlaceSellOrder(decimal amount)
         {
             var response = await api.PlaceOrder(amount, "sell", product);
+            return response.Unwrap();
+        }
 
-            return response.IsSuccess;
+        public async Task<IOrder> GetLatestOrder()
+        {
+            var response = await api.GetLatestOrder();
+            return response.Unwrap();
         }
     }
 }

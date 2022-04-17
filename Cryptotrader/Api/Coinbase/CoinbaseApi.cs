@@ -80,6 +80,33 @@ namespace Cryptotrader.Api.Coinbase
             );
         }
 
+        public async Task<RequestResult<CoinbaseOrder>> GetLatestOrder()
+        {
+            var result = await GetRecentOrders(1);
+            return result.CastTo(a => a[0]);
+        }
+        public async Task<RequestResult<CoinbaseOrder[]>> GetRecentOrders(int limit)
+        {
+            var request = await GetRequest(
+                "/orders",
+                new Dictionary<string, string>
+                {
+                    { "sortedBy", "created_at" },
+                    { "sorting", "desc" },
+                    { "limit", limit.ToString() },
+                    { "status", "done" }
+                }
+            );
+            return await HandleApiResponse(
+                request,
+                async (res) =>
+                {
+                    string json = await res.Content.ReadAsStringAsync();
+                    return Json.Deserialize<CoinbaseOrder[]>(json);
+                }
+            );
+        }
+
         public async Task<RequestResult<CoinbaseOrder>> PlaceOrder(decimal amount, string side, string product)
         {
             var request = await PostRequest(

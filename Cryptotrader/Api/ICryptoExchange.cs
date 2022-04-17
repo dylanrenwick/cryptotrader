@@ -7,8 +7,10 @@
 
         public Task UpdatePrices();
 
-        public Task<bool> PlaceBuyOrder(decimal amount);
-        public Task<bool> PlaceSellOrder(decimal amount);
+        public Task<IOrder> PlaceBuyOrder(decimal amount);
+        public Task<IOrder> PlaceSellOrder(decimal amount);
+
+        public Task<IOrder> GetLatestOrder();
 
     }
 }
