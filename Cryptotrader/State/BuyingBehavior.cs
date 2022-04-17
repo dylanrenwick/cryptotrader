@@ -1,5 +1,7 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
+using Cryptotrader.Api;
+using Cryptotrader.Config;
 using static Cryptotrader.State.BotState;
 
 namespace Cryptotrader.State
@@ -19,21 +21,21 @@ namespace Cryptotrader.State
             lowestPrice = low;
         }
 
-        public override void Update()
+        public override void Update(ICryptoExchange api, BotProfile profile)
         {
-            if (Bot.CurrentBuyPrice < lowestPrice)
+            if (api.CurrentBuyPrice < lowestPrice)
             {
-                log.Debug($"New lowest price of {Bot.CurrentBuyPrice}, previous lowest was {lowestPrice}");
-                lowestPrice = Bot.CurrentBuyPrice;
+                log.Debug($"New lowest price of {api.CurrentBuyPrice}, previous lowest was {lowestPrice}");
+                lowestPrice = api.CurrentBuyPrice;
             }
-            else if (Bot.CurrentBuyPrice > lowestPrice)
+            else if (api.CurrentBuyPrice > lowestPrice)
             {
-                log.Debug($"Price of {Bot.CurrentBuyPrice} is higher than low of {lowestPrice}, checking rebound threshold");
-                decimal reboundAmount = GetRebound();
-                log.Debug($"Price has rebounded by {reboundAmount * 100}% Threshold is {Bot.ReboundBeforeBuy * 100}%");
-                if (reboundAmount >= Bot.ReboundBeforeBuy)
+                log.Debug($"Price of {api.CurrentBuyPrice} is higher than low of {lowestPrice}, checking rebound threshold");
+                decimal reboundAmount = GetRebound(api);
+                log.Debug($"Price has rebounded by {reboundAmount * 100}% Threshold is {profile.FallEndThreshold * 100}%");
+                if (reboundAmount >= profile.FallEndThreshold)
                 {
-                    log.Info($"Rebound amount of {reboundAmount * 100}% is greater than threshold of {Bot.ReboundBeforeBuy * 100}%");
+                    log.Info($"Rebound amount of {reboundAmount * 100}% is greater than threshold of {profile.FallEndThreshold * 100}%");
                     log.Info("Price has stopped falling, buying crypto");
                     Bot.BuyCrypto();
                 }
@@ -43,12 +45,12 @@ namespace Cryptotrader.State
         public override void ReadFromJson(ref Utf8JsonReader reader)
         {
             base.ReadFromJson(ref reader);
-            reader.GetDecimal()
+            //reader.GetDecimal()
         }
 
-        private decimal GetRebound()
+        private decimal GetRebound(ICryptoExchange api)
         {
-            decimal rebound = Bot.CurrentBuyPrice - lowestPrice;
+            decimal rebound = api.CurrentBuyPrice - lowestPrice;
             decimal reboundPercent = rebound / lowestPrice;
             return reboundPercent;
         }

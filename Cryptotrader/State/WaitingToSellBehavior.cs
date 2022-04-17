@@ -1,4 +1,6 @@
-﻿using static Cryptotrader.State.BotState;
+﻿using Cryptotrader.Api;
+using Cryptotrader.Config;
+using static Cryptotrader.State.BotState;
 
 namespace Cryptotrader.State
 {
@@ -6,7 +8,7 @@ namespace Cryptotrader.State
     {
         public override BotState State => WaitingToSell;
 
-        public override void Update()
+        public override void Update(ICryptoExchange api, BotProfile profile)
         {
             throw new NotImplementedException();
         }

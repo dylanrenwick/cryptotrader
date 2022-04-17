@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 
+using Cryptotrader.Api;
+using Cryptotrader.Config;
 using Cryptotrader.Logging;
 
 using static Cryptotrader.State.BotState;
@@ -21,7 +23,7 @@ namespace Cryptotrader.State
 
         public abstract BotState State { get; }
 
-        public abstract void Update();
+        public abstract void Update(ICryptoExchange api, BotProfile profile);
 
         public virtual void ReadFromJson(ref Utf8JsonReader reader) { }
         public virtual void WriteToJson(Utf8JsonWriter writer)

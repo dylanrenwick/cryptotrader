@@ -1,4 +1,6 @@
-﻿using static Cryptotrader.State.BotState;
+﻿using Cryptotrader.Api;
+using Cryptotrader.Config;
+using static Cryptotrader.State.BotState;
 
 namespace Cryptotrader.State
 {
@@ -6,15 +8,15 @@ namespace Cryptotrader.State
     {
         public override BotState State => WaitingToBuy;
 
-        public override void Update()
+        public override void Update(ICryptoExchange api, BotProfile profile)
         {
             decimal profit = Bot.GetBuyProfit();
-            if (profit > Bot.LastSoldAt * Bot.DropBeforeBuy)
+            if (profit > Bot.LastSoldAt * profile.LossThreshold)
             {
-                log.Info($"Price is ${Bot.CurrentBuyPrice}, {profit / Bot.LastSoldAt}% lower than last sell price of ${Bot.LastSoldAt}");
-                log.Info($"Drop of {profit / Bot.LastSoldAt}% is above drop threshold of {Bot.DropBeforeBuy}%");
+                log.Info($"Price is ${api.CurrentBuyPrice}, {profit / Bot.LastSoldAt}% lower than last sell price of ${Bot.LastSoldAt}");
+                log.Info($"Drop of {profit / Bot.LastSoldAt}% is above drop threshold of {profile.LossThreshold}%");
                 log.Info("Switching to buy rebound");
-                Bot.SetState(new BuyingBehavior(Bot.CurrentBuyPrice));
+                Bot.SetState(new BuyingBehavior(api.CurrentBuyPrice));
             }
         }
     }

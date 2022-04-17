@@ -16,13 +16,15 @@
   },
   "bot": {
     "interval": 5,
-    "initial_state": "Startup",
+    "profile": {
+      "initial_state": "Startup",
 
-    "drop_before_buy": 0.5,
-    "rebound_before_buy": 0.5,
-    "gain_before_sell": 0.5,
-    "rebound_before_sell": 0.5,
+      "loss_threshold": 0.5,
+      "gain_threshold": 0.5,
+      "rise_end_threshold": 0.5,
+      "fall_end_threshold": 0.5,
 
-    "buy_amount": 100
+      "liquid_value": 100
+    }
   }
 }
