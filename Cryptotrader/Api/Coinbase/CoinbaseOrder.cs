@@ -2,7 +2,7 @@
 
 namespace Cryptotrader.Api.Coinbase
 {
-    public class CoinbaseOrder
+    public class CoinbaseOrder : IOrder
     {
         [JsonPropertyName("id")]
         public string ID { get; set; }
@@ -34,5 +34,19 @@ namespace Cryptotrader.Api.Coinbase
         public string Status { get; set; }
         [JsonPropertyName("settled")]
         public bool Settled { get; set; }
+
+        public DateTime CreatedAt => Created;
+        public OrderType OrderType
+        {
+            get
+            {
+                switch (this.Type)
+                {
+                    case "buy": return OrderType.Buy;
+                    case "sell": return OrderType.Sell;
+                    default: throw new Exception();
+                }
+            }
+        }
     }
 }
