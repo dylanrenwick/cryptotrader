@@ -1,4 +1,4 @@
-using Cryptotrader.Api.Coinbase;
+﻿using Cryptotrader.Api.Coinbase;
 using Cryptotrader.Config;
 using Cryptotrader.Logging;
 
@@ -61,6 +61,8 @@ namespace Cryptotrader
                 apiConfig.Cash,
                 apiConfig.Coin
             );
+
+            await coinbaseDataProvider.LoadWallets();
         }
 
         private static void CreateBot()
