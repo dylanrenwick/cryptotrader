@@ -179,18 +179,30 @@ public class LoggerTest
     }
 
     [Fact]
-    public void Crit_SetsLogLevel()
+    public void Crit_ThrowsException()
+    {
+        Logger log = new(logDestination.Object);
+
+        Assert.Throws<CriticalException>(() => log.Crit("Test"));
+    }
+
+    [Fact]
+    public void Crit_LogsMessage()
     {
         LogMessage? message = null;
 
         logDestination.Setup(x => x.Log(It.IsAny<LogMessage>()))
-            .Callback<LogMessage>(x => message = x);
-
+            .Callback<LogMessage>(x => message = x).Verifiable();
         Logger log = new(logDestination.Object);
 
-        log.Crit("Test");
+        try { log.Crit("Test"); }
+        catch (CriticalException) { }
+        finally
+        {
+            Assert.NotNull(message);
+            Assert.Equal(LogLevel.Crit, message?.Level);
 
-        Assert.NotNull(message);
-        Assert.Equal(LogLevel.Crit, message?.Level);
+            logDestination.Verify(x => x.Log(It.IsAny<LogMessage>()), Times.Once);
+        }
     }
 }
