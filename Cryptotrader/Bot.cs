@@ -23,8 +23,8 @@ namespace Cryptotrader
         private BotConfig config;
         private BotProfile profile => config.Profile;
 
-        private HistoricalValue<decimal> historicalBuyPrices;
-        private HistoricalValue<decimal> historicalSellPrices;
+        private HistoricalValue<decimal> historicalBuyPrices = new();
+        private HistoricalValue<decimal> historicalSellPrices = new();
 
         public Bot(
             Logger logger,
@@ -85,10 +85,21 @@ namespace Cryptotrader
 
         public void SetState(BotStateBehavior newState)
         {
+            if (activeState != null) log.Info($"Exiting {activeState.State}");
             activeState?.ExitState();
             activeState = newState;
+            log.Info($"Entering {activeState.State}");
             activeState.EnterState(this, log);
             lastStateChange = DateTime.Now;
+        }
+
+        public void SetLastSellPrice(decimal val)
+        {
+            historicalSellPrices.Set(val);
+        }
+        public void SetLastBuyPrice(decimal val)
+        {
+            historicalBuyPrices.Set(val);
         }
 
         private async Task RunBot()
