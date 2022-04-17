@@ -11,6 +11,6 @@
         public Task<IOrder> PlaceSellOrder(decimal amount);
 
         public Task<IOrder> GetLatestOrder();
-
+        public Task<IOrder[]> GetRecentOrders(int limit);
     }
 }

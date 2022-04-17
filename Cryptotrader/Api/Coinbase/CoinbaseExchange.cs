@@ -86,5 +86,10 @@ namespace Cryptotrader.Api.Coinbase
             var response = await api.GetLatestOrder();
             return response.Unwrap();
         }
+        public async Task<IOrder[]> GetRecentOrders(int limit)
+        {
+            var response = await api.GetRecentOrders(limit);
+            return response.Unwrap();
+        }
     }
 }
