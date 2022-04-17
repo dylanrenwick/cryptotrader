@@ -25,6 +25,10 @@ namespace Cryptotrader.Config
         {
             return configState.ApiConfig;
         }
+        public BotConfig GetBotConfig()
+        {
+            return configState.BotConfig;
+        }
 
         public async Task LoadConfig(string filePath)
         {
