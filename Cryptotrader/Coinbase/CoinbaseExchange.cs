@@ -34,7 +34,7 @@ namespace Cryptotrader.Coinbase
         private HistoricalValue<decimal> historicalBuyPrices;
         private HistoricalValue<decimal> historicalSellPrices;
 
-        private Dictionary<string, CoinbaseAccount> accounts = new Dictionary<string, CoinbaseAccount>();
+        private Dictionary<string, CoinbaseAccount> accounts = new();
 
         public CoinbaseExchange(
             Logger logger,
@@ -119,7 +119,7 @@ namespace Cryptotrader.Coinbase
                     UpdateAccount(account);
                 }
 
-                log.Debug($"Loaded {accounts.Count()} valid accounts");
+                log.Debug($"Loaded {accounts.Length} valid accounts");
             }
         }
 
@@ -163,20 +163,19 @@ namespace Cryptotrader.Coinbase
 
         private async Task<RequestResult<string>> SendRequest(HttpRequestMessage request)
         {
-            using (HttpClient web = new())
+            using HttpClient web = new();
+
+            web.BaseAddress = new Uri(API_URL);
+            HttpResponseMessage response = await web.SendAsync(request);
+            if (response.IsSuccessStatusCode)
             {
-                web.BaseAddress = new Uri(API_URL);
-                HttpResponseMessage response = await web.SendAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    return RequestResult<string>.Success(responseContent);
-                }
-                else
-                {
-                    ApiError error = await ParseErrorMessage(response);
-                    return RequestResult<string>.Failure(error.Message);
-                }
+                string responseContent = await response.Content.ReadAsStringAsync();
+                return RequestResult<string>.Success(responseContent);
+            }
+            else
+            {
+                ApiError error = await ParseErrorMessage(response);
+                return RequestResult<string>.Failure(error.Message);
             }
         }
 
