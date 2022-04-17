@@ -14,8 +14,15 @@ namespace Cryptotrader
 
         private static CoinbaseExchange coinbaseDataProvider;
 
+        private static bool isSimulation;
+
         private static async Task Main(string[] args)
         {
+            if (args.Length > 0)
+            {
+                LoadArgs(args);
+            }
+
             await LoadConfig();
             log = new Logger(cfgLoader.GetLogDestination());
             log.Debug("Logger initialized");
@@ -40,6 +47,14 @@ namespace Cryptotrader
             catch (Exception ex)
             {
                 log.Exception(ex);
+            }
+        }
+
+        private static void LoadArgs(string[] args)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-sim") isSimulation = true;
             }
         }
 
@@ -69,7 +84,8 @@ namespace Cryptotrader
         {
             bot = new Bot(
                 log.Label("BOT"),
-                coinbaseDataProvider
+                coinbaseDataProvider,
+                isSimulation
             );
 
             bot.LoadConfig(cfgLoader.GetBotConfig());

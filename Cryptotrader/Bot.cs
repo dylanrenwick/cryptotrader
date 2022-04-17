@@ -47,6 +47,12 @@ namespace Cryptotrader
             SetState(initialState);
 
             log.Alert("Cryptotrader starting up");
+
+            if (IsSimulation)
+            {
+                log.Alert("Starting up in simulation mode!");
+                log.Info("Buy/Sell orders will not be sent to the API, but the bot will otherwise function normally");
+            }
             
             await RunBot();
         }
