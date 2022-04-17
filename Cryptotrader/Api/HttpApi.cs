@@ -39,7 +39,7 @@ namespace Cryptotrader.Api
         }
 
         public async Task<HttpResponseMessage> PostRequest(string endpoint, Dictionary<string, object> postData)
-            => await PostRequest(endpoint, JsonSerializer.Serialize(postData));
+            => await PostRequest(endpoint, Json.Serialize(postData));
         public async Task<HttpResponseMessage> PostRequest(string endpoint, string postData)
         {
             log.Debug($"Requesting {endpoint} with\n{postData}");

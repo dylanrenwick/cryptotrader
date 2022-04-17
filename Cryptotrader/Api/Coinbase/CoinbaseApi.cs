@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Cryptotrader.Api.Coinbase
                 async (res) =>
                 {
                     string json = await res.Content.ReadAsStringAsync();
-                    var loadedAccounts = JsonSerializer.Deserialize<CoinbaseAccount[]>(json);
+                    var loadedAccounts = Json.Deserialize<CoinbaseAccount[]>(json);
                     foreach (var account in loadedAccounts.Where(a => a.IsTradingEnabled && a.IsInUse))
                     {
                         UpdateAccount(account);
@@ -55,7 +55,7 @@ namespace Cryptotrader.Api.Coinbase
                 async (res) =>
                 {
                     string json = await res.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<CoinbaseProductTicker>(json);
+                    return Json.Deserialize<CoinbaseProductTicker>(json);
                 }
             );
         }
@@ -77,7 +77,7 @@ namespace Cryptotrader.Api.Coinbase
                 async (res) =>
                 {
                     string json = await res.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<CoinbaseOrder>(json);
+                    return Json.Deserialize<CoinbaseOrder>(json);
                 }
             );
         }
@@ -101,8 +101,8 @@ namespace Cryptotrader.Api.Coinbase
 
         private async Task<CoinbaseApiError> ParseErrorMessage(HttpResponseMessage response)
         {
-            var stream = await response.Content.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<CoinbaseApiError>(stream);
+            var json = await response.Content.ReadAsStringAsync();
+            return Json.Deserialize<CoinbaseApiError>(json);
         }
 
         private string Signature(string endpoint, string body, string timestamp, HttpMethod method)

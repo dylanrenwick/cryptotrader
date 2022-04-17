@@ -8,15 +8,6 @@ namespace Cryptotrader.Config
 {
     public class ConfigLoader
     {
-        private static readonly JsonSerializerOptions jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            Converters =
-            {
-                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-            }
-        };
-
         private FileStream jsonFileStream;
         private ConfigState configState;
 
@@ -35,18 +26,10 @@ namespace Cryptotrader.Config
             return configState.ApiConfig;
         }
 
-        public async Task<bool> LoadConfig(string filePath)
+        public async Task LoadConfig(string filePath)
         {
-            try
-            {
-                LoadFile(filePath);
-                await ParseConfig();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            LoadFile(filePath);
+            await ParseConfig();
         }
 
         private void LoadFile(string filePath)
@@ -56,7 +39,7 @@ namespace Cryptotrader.Config
 
         private async Task ParseConfig()
         {
-            configState = await JsonSerializer.DeserializeAsync<ConfigState>(jsonFileStream, jsonOptions);
+            configState = await Json.DeserializeAsync<ConfigState>(jsonFileStream);
         }
     }
 }
