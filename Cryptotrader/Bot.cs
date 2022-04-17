@@ -99,7 +99,7 @@ namespace Cryptotrader
             {
                 var rateLimit = Task.Delay(interval);
 
-                Update();
+                await Update();
 
                 await rateLimit;
             }
