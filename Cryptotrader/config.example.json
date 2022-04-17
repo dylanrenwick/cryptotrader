@@ -1,0 +1,30 @@
+﻿{
+  "loggers": [
+    {
+      "type": "console",
+      "level": "debug"
+    },
+    {
+      "type": "file",
+      "level": "debug",
+      "path": "log\\logfile.log"
+    }
+  ],
+  "api": {
+    "cash": "USDC",
+    "coin": "ETH"
+  },
+  "bot": {
+    "interval": 5,
+    "profile": {
+      "initial_state": "Startup",
+
+      "loss_threshold": 0.5,
+      "gain_threshold": 0.5,
+      "rise_end_threshold": 0.5,
+      "fall_end_threshold": 0.5,
+
+      "liquid_value": 100
+    }
+  }
+}
