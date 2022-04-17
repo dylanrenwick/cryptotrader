@@ -16,7 +16,7 @@ namespace Cryptotrader.State
             if (profitShift > profile.GainThreshold)
             {
                 log.Info($"Gain of {profitShift}% is above gain threshold of {profile.GainThreshold}%");
-                log.Info("Switching tosell rebound");
+                log.Alert("Switching to sell rebound");
                 Bot.SetState(new SellingBehavior(api.CurrentBuyPrice));
             }
         }
