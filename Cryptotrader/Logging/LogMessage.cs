@@ -23,7 +23,7 @@
 
         private string FormatHeadLine(string line)
         {
-            return $"{FormattedLevel}\t{FormattedTimestamp} {FormattedLabel}> {line}";
+            return $"{ResetCode}{FormattedTimestamp}{FormattedLevel}{FormattedLabel}> {line}";
         }
         private string FormatMultiline(string line)
         {
@@ -35,7 +35,7 @@
         {
             get
             {
-                string formattedLevel = Level.ToString().PadRight(5).Substring(0, 5).ToUpper();
+                string formattedLevel = Level.ToString().PadLeft(6).ToUpper();
                 if (levelColors.TryGetValue(Level, out ConsoleColor color))
                     return ColorText(formattedLevel, color);
                 else return formattedLevel;
