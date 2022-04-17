@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Cryptotrader.Logging
 {
-    public class FileLogDestination : LogDestination, IDisposable
+    public class FileLogDestination : LeveledLogDestination, IDisposable
     {
         private FileStream fileStream;
         private StreamWriter fileWriter;

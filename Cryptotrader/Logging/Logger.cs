@@ -6,9 +6,9 @@ namespace Cryptotrader.Logging
     {
         private string label;
 
-        protected LogDestination Destination { get; set; }
+        protected ILogDestination Destination { get; set; }
 
-        public Logger(LogDestination dest, string label = "")
+        public Logger(ILogDestination dest, string label = "")
         {
             Destination = dest;
             this.label = label;

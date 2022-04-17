@@ -2,17 +2,16 @@
 
 namespace Cryptotrader.Logging
 {
-    public class MultiLogDestination : LogDestination
+    public class MultiLogDestination : ILogDestination
     {
-        private List<LogDestination> destinations = new();
+        private List<ILogDestination> destinations = new();
 
-        public MultiLogDestination(params LogDestination[] destinations)
-            : base(LogLevel.Debug)
+        public MultiLogDestination(params ILogDestination[] destinations)
         {
             this.destinations.AddRange(destinations);
         }
 
-        protected override void LogToTarget(LogMessage message)
+        public void Log(LogMessage message)
         {
             foreach (var destination in destinations)
             {

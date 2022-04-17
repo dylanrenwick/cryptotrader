@@ -24,9 +24,9 @@ namespace Cryptotrader.Config
         private FileStream jsonFileStream;
         private ConfigState configState;
 
-        public LogDestination GetLogDestination()
+        public ILogDestination GetLogDestination()
         {
-            LogDestination[] destinations = configState.DestinationConfigs
+            ILogDestination[] destinations = configState.DestinationConfigs
                 .Select(dest => dest.GetDestination()).ToArray();
 
             if (destinations.Length > 1) return new MultiLogDestination(destinations);

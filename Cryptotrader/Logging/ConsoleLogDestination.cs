@@ -2,7 +2,7 @@
 
 namespace Cryptotrader.Logging
 {
-    public class ConsoleLogDestination : LogDestination
+    public class ConsoleLogDestination : LeveledLogDestination
     {
         public ConsoleLogDestination(LogLevel maxLevel)
             : base(maxLevel) { }

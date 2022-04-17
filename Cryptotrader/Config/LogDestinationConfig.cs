@@ -20,7 +20,7 @@ namespace Cryptotrader.Config
         [JsonPropertyName("path")]
         public string FilePath { get; set; }
 
-        public LogDestination GetDestination()
+        public ILogDestination GetDestination()
         {
             switch (DestinationType)
             {
