@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,6 +15,7 @@ namespace Cryptotrader.Api.Coinbase
         private readonly string apiPassphrase;
 
         private readonly Dictionary<string, CoinbaseAccount> accounts = new();
+        private readonly Dictionary<string, CoinbaseWallet> wallets = new();
 
         public CoinbaseApi(
             Logger logger,
@@ -44,6 +45,25 @@ namespace Cryptotrader.Api.Coinbase
 
                     log.Debug($"Loaded {loadedAccounts.Length} valid accounts");
                     return accounts;
+                }
+            );
+        }
+
+        public async Task<RequestResult<Dictionary<string, CoinbaseWallet>>> GetWallets()
+        {
+            return await HandleApiResponse(
+                await GetRequest("/coinbase-accounts"),
+                async (res) =>
+                {
+                    string json = await res.Content.ReadAsStringAsync();
+                    var loadedWallets = Json.Deserialize<CoinbaseWallet[]>(json);
+                    foreach (var wallet in loadedWallets.Where(w => w.Active))
+                    {
+                        UpdateWallet(wallet);
+                    }
+
+                    log.Debug($"Loaded {loadedWallets.Length} valid wallets");
+                    return wallets;
                 }
             );
         }
@@ -85,7 +105,7 @@ namespace Cryptotrader.Api.Coinbase
         protected override HttpRequestMessage BuildMessage(string endpoint, HttpMethod method, HttpContent content = null)
         {
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-            string signature = Signature(endpoint, content.ToString(), timestamp, method);
+            string signature = Signature(endpoint, content?.ToString() ?? String.Empty, timestamp, method);
 
             var request = base.BuildMessage(endpoint, method, content);
 
@@ -127,6 +147,13 @@ namespace Cryptotrader.Api.Coinbase
             string currency = account.Currency;
             if (accounts.ContainsKey(currency)) accounts[currency] = account;
             else accounts.Add(currency, account);
+        }
+
+        private void UpdateWallet(CoinbaseWallet wallet)
+        {
+            string currency = wallet.Currency;
+            if (wallets.ContainsKey(currency)) wallets[currency] = wallet;
+            else wallets.Add(currency, wallet);
         }
 
         private async Task<RequestResult<T>> HandleApiResponse<T>(

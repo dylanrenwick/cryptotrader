@@ -26,8 +26,7 @@ namespace Cryptotrader.Api.Coinbase
             string passphrase,
             string cash,
             string coin
-        )
-        {
+        ) {
             log = logger;
 
             historicalBuyPrices = new HistoricalValue<decimal>();
@@ -44,6 +43,19 @@ namespace Cryptotrader.Api.Coinbase
             this.coin = coin.ToUpper();
 
             api = new(log, API_URL, key, secret, passphrase);
+        }
+
+        public async Task LoadWallets()
+        {
+            var result = await api.GetWallets();
+            if (result.IsSuccess)
+            {
+                var wallets = result.Result;
+                foreach ((var currency, var wallet) in wallets)
+                {
+                    if (wallet.Balance > 0) log.Info($"{currency.PadRight(6)}> {wallet.Balance}");
+                }
+            }
         }
 
         public async Task UpdatePrices()
