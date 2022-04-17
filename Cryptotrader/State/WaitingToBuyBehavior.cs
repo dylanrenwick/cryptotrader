@@ -11,11 +11,12 @@ namespace Cryptotrader.State
         public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             decimal profit = Bot.GetBuyProfit();
-            if (profit > Bot.LastSoldAt * profile.LossThreshold)
+            decimal profitShift = Math.Round(profit / Bot.LastSoldAt, 6);
+            log.Info($"Price is ${api.CurrentBuyPrice}, {profitShift}% lower than last buy price of ${Bot.LastSoldAt}");
+            if (profitShift > profile.LossThreshold)
             {
-                log.Info($"Price is ${api.CurrentBuyPrice}, {profit / Bot.LastSoldAt}% lower than last sell price of ${Bot.LastSoldAt}");
-                log.Info($"Drop of {profit / Bot.LastSoldAt}% is above drop threshold of {profile.LossThreshold}%");
-                log.Info("Switching to buy rebound");
+                log.Info($"Drop of {profitShift}% is above drop threshold of {profile.LossThreshold}%");
+                log.Alert("Switching to buy rebound");
                 Bot.SetState(new BuyingBehavior(api.CurrentBuyPrice));
             }
         }
