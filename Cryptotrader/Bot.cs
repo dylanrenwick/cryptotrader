@@ -85,10 +85,10 @@ namespace Cryptotrader
 
         public void SetState(BotStateBehavior newState)
         {
-            if (activeState != null) log.Info($"Exiting {activeState.State}");
+            if (activeState != null) log.Debug($"Exiting {activeState.State}");
             activeState?.ExitState();
             activeState = newState;
-            log.Info($"Entering {activeState.State}");
+            log.Debug($"Entering {activeState.State}");
             activeState.EnterState(this, log);
             lastStateChange = DateTime.Now;
         }
