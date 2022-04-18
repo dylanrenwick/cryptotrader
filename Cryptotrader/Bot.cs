@@ -65,14 +65,14 @@ namespace Cryptotrader
         public decimal GetBuyProfit()
         {
             decimal buyPrice = exchange.CurrentBuyPrice;
-            decimal profit = historicalSellPrices.Current - buyPrice;
-            return profit;
+            decimal profit = LastSoldAt - buyPrice;
+            return profit / LastSoldAt * 100;
         }
         public decimal GetSellProfit()
         {
             decimal sellPrice = exchange.CurrentSellPrice;
-            decimal profit = sellPrice - historicalBuyPrices.Current;
-            return profit;
+            decimal profit = sellPrice - LastBoughtAt;
+            return profit / LastBoughtAt * 100;
         }
 
         public void BuyCrypto()
