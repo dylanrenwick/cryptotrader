@@ -50,7 +50,7 @@ namespace Cryptotrader.Api.Coinbase
             var result = await api.GetWallets();
             if (result.IsSuccess)
             {
-                var wallets = result.Result;
+                var wallets = result.Value;
                 log.Alert("Api connected and authenticated. Active wallets:");
                 foreach ((var currency, var wallet) in wallets)
                 {
@@ -62,10 +62,10 @@ namespace Cryptotrader.Api.Coinbase
         public async Task UpdatePrices()
         {
             log.Info("Updating prices");
-            RequestResult<CoinbaseProductTicker> response = await api.GetProductTicker(product);
+            Result<CoinbaseProductTicker> response = await api.GetProductTicker(product);
             if (response.IsSuccess)
             {
-                CoinbaseProductTicker productTicker = response.Result;
+                CoinbaseProductTicker productTicker = response.Value;
                 historicalBuyPrices.Set(productTicker.BuyPrice);
                 historicalSellPrices.Set(productTicker.SellPrice);
             }

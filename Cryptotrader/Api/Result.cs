@@ -1,22 +1,22 @@
 ﻿namespace Cryptotrader.Api
 {
-    public class RequestResult<T>
+    public class Result<T>
     {
-        public T Result { get; private set; }
+        public T Value { get; private set; }
 
         public string ErrorMessage { get; private set; }
 
         public bool IsSuccess { get; private set; }
 
-        public RequestResult<Y> CastTo<Y>(Func<T, Y> convertFunc)
+        public Result<Y> CastTo<Y>(Func<T, Y> convertFunc)
         {
             if (IsSuccess)
             {
-                return RequestResult<Y>.Success(convertFunc(Result));
+                return Result<Y>.Success(convertFunc(Value));
             }
             else
             {
-                return RequestResult<Y>.Failure(ErrorMessage);
+                return Result<Y>.Failure(ErrorMessage);
             }
         }
 
@@ -24,22 +24,22 @@
 
         public T Unwrap(Exception ex)
         {
-            if (IsSuccess) return Result;
+            if (IsSuccess) return Value;
             throw ex;
         }
 
-        public static RequestResult<T> Success(T t)
+        public static Result<T> Success(T t)
         {
             return new() {
-                Result = t,
+                Value = t,
                 IsSuccess = true,
                 ErrorMessage = string.Empty
             };
         }
-        public static RequestResult<T> Failure(string message)
+        public static Result<T> Failure(string message)
         {
             return new() {
-                Result = default(T),
+                Value = default(T),
                 IsSuccess = false,
                 ErrorMessage = message
             };

@@ -30,7 +30,7 @@ namespace Cryptotrader.Api.Coinbase
             apiPassphrase = passphrase;
         }
 
-        public async Task<RequestResult<Dictionary<string, CoinbaseAccount>>> UpdateAccounts()
+        public async Task<Result<Dictionary<string, CoinbaseAccount>>> UpdateAccounts()
         {
             return await HandleApiResponse(
                 await GetRequest("/accounts"),
@@ -49,7 +49,7 @@ namespace Cryptotrader.Api.Coinbase
             );
         }
 
-        public async Task<RequestResult<Dictionary<string, CoinbaseWallet>>> GetWallets()
+        public async Task<Result<Dictionary<string, CoinbaseWallet>>> GetWallets()
         {
             return await HandleApiResponse(
                 await GetRequest("/coinbase-accounts"),
@@ -68,7 +68,7 @@ namespace Cryptotrader.Api.Coinbase
             );
         }
 
-        public async Task<RequestResult<CoinbaseProductTicker>> GetProductTicker(string product)
+        public async Task<Result<CoinbaseProductTicker>> GetProductTicker(string product)
         {
             return await HandleApiResponse(
                 await GetRequest($"/products/{product}/ticker"),
@@ -80,12 +80,12 @@ namespace Cryptotrader.Api.Coinbase
             );
         }
 
-        public async Task<RequestResult<CoinbaseOrder>> GetLatestOrder()
+        public async Task<Result<CoinbaseOrder>> GetLatestOrder()
         {
             var result = await GetRecentOrders(1);
             return result.CastTo(a => a[0]);
         }
-        public async Task<RequestResult<CoinbaseOrder[]>> GetRecentOrders(int limit)
+        public async Task<Result<CoinbaseOrder[]>> GetRecentOrders(int limit)
         {
             var request = await GetRequest(
                 "/orders",
@@ -107,7 +107,7 @@ namespace Cryptotrader.Api.Coinbase
             );
         }
 
-        public async Task<RequestResult<CoinbaseOrder>> PlaceOrder(decimal amount, string side, string product)
+        public async Task<Result<CoinbaseOrder>> PlaceOrder(decimal amount, string side, string product)
         {
             var request = await PostRequest(
                 "/orders",
@@ -183,19 +183,19 @@ namespace Cryptotrader.Api.Coinbase
             else wallets.Add(currency, wallet);
         }
 
-        private async Task<RequestResult<T>> HandleApiResponse<T>(
+        private async Task<Result<T>> HandleApiResponse<T>(
             HttpResponseMessage response,
             Func<HttpResponseMessage, Task<T>> successPredicate)
         {
             if (response.IsSuccessStatusCode)
             {
                 T result = await successPredicate(response);
-                return RequestResult<T>.Success(result);
+                return Result<T>.Success(result);
             }
             else
             {
                 var error = await ParseErrorMessage(response);
-                return RequestResult<T>.Failure(error.Message);
+                return Result<T>.Failure(error.Message);
             }
         }
     }
