@@ -95,6 +95,7 @@ namespace Cryptotrader.Api
                     await Task.Delay(RetryDelay);
                     return await TryRequest(request, retries++);
                 }
+                else throw;
             }
 
             return response;
