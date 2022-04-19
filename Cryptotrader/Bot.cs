@@ -104,6 +104,12 @@ namespace Cryptotrader
             lastStateChange = DateTime.Now;
         }
 
+        public async Task SetStateAndRun(BotStateBehavior newState)
+        {
+            SetState(newState);
+            await UpdateState();
+        }
+
         public void SetLastSellPrice(decimal val)
         {
             historicalSellPrices.Set(val);

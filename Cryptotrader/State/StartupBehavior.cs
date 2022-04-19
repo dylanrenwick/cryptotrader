@@ -30,7 +30,7 @@ namespace Cryptotrader.State
                     break;
             }
 
-            Bot.SetState(nextState);
+            await Bot.SetStateAndRun(nextState);
         }
     }
 }
