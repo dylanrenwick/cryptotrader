@@ -84,8 +84,14 @@ namespace Cryptotrader.Api
             }
             catch (HttpRequestException ex)
             {
-                if (retries < RetryLimit && IsRetryable(ex.StatusCode.Value))
+                if (IsRetryable(ex.StatusCode.Value))
                 {
+                    if (RetryLimit > 0 && retries >= RetryLimit)
+                        throw new HttpRequestException(
+                            $"Failed to get response after {retries} retries",
+                            ex.InnerException,
+                            ex.StatusCode);
+
                     await Task.Delay(RetryDelay);
                     return await TryRequest(request, retries++);
                 }
