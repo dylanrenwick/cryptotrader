@@ -92,6 +92,7 @@ namespace Cryptotrader.Api
                             ex.InnerException,
                             ex.StatusCode);
 
+                    log.Warn($"Failed to get '{request.RequestUri}' ({retries + 1}/{RetryLimit})");
                     await Task.Delay(RetryDelay);
                     return await TryRequest(request, retries++);
                 }
