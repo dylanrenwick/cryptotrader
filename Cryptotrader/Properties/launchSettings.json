@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Cryptotrader": {
+      "commandName": "Project",
+      "commandLineArgs": "-sim"
+    }
+  }
+}
