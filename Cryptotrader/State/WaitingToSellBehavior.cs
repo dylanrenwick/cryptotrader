@@ -11,7 +11,10 @@ namespace Cryptotrader.State
         public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             decimal profit = Bot.GetSellProfit();
-            log.Info($"Price is ${api.CurrentSellPrice}, {profit}% higher than last buy price of ${Bot.LastBoughtAt}");
+            decimal targetPrice = Math.Round(Bot.LastBoughtAt * (1 + profile.GainThreshold / 100), 2);
+            log.Debug($"Price is ${api.CurrentSellPrice}, {profit}% higher than last buy price of ${Bot.LastBoughtAt}");
+            log.Debug($"Configured threshold is {profile.GainThreshold}%, which will be met at a price of ${targetPrice}");
+            log.Info($"Price: ${api.CurrentSellPrice}/${targetPrice} Loss: {profit}%/{profile.GainThreshold}%");
             if (profit > profile.GainThreshold)
             {
                 log.Info($"Gain of {profit}% is above gain threshold of {profile.GainThreshold}%");
