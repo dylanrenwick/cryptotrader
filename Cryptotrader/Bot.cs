@@ -7,8 +7,8 @@ namespace Cryptotrader
 {
     public class Bot
     {
-        public decimal LastBoughtAt => historicalBuyPrices.Current;
-        public decimal LastSoldAt => historicalSellPrices.Current;
+        public decimal LastBoughtAt => Math.Round(historicalBuyPrices.Current, 2) + 0.00m;
+        public decimal LastSoldAt => Math.Round(historicalSellPrices.Current, 2) + 0.00m;
 
         public bool IsSimulation { get; private set; }
 
@@ -66,13 +66,15 @@ namespace Cryptotrader
         {
             decimal buyPrice = exchange.CurrentBuyPrice;
             decimal profit = LastSoldAt - buyPrice;
-            return profit / LastSoldAt * 100;
+            decimal profitPercent = profit / LastSoldAt * 100;
+            return Math.Round(profitPercent, 4);
         }
         public decimal GetSellProfit()
         {
             decimal sellPrice = exchange.CurrentSellPrice;
             decimal profit = sellPrice - LastBoughtAt;
-            return profit / LastBoughtAt * 100;
+            decimal profitPercent = profit / LastBoughtAt * 100;
+            return Math.Round(profitPercent, 4);
         }
 
         public void BuyCrypto()

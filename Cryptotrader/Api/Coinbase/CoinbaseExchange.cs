@@ -11,8 +11,9 @@ namespace Cryptotrader.Api.Coinbase
 
         private string product => $"{coin}-{cash}";
 
-        public decimal CurrentBuyPrice => historicalBuyPrices.Current;
-        public decimal CurrentSellPrice => historicalSellPrices.Current;
+        public decimal CurrentBuyPrice => Math.Round(historicalBuyPrices.Current, 2) + 0.00m;
+        public decimal CurrentSellPrice => Math.Round(historicalSellPrices.Current, 2) + 0.00m;
+
         private HistoricalValue<decimal> historicalBuyPrices;
         private HistoricalValue<decimal> historicalSellPrices;
 
