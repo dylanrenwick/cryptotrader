@@ -1,6 +1,6 @@
 ﻿namespace Cryptotrader.Logging
 {
-    public abstract class LeveledLogDestination: ILogDestination
+    public abstract class LeveledLogDestination : ILogDestination
     {
         public LogLevel MaxLogLevel { get; }
 
