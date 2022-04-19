@@ -134,7 +134,11 @@ namespace Cryptotrader
             DebugLog();
 
             await exchange.UpdatePrices();
+            await UpdateState();
+        }
 
+        private async Task UpdateState()
+        {
             await activeState.Update(exchange, profile);
         }
 
