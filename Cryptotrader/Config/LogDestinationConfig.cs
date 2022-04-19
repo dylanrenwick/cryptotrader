@@ -18,13 +18,15 @@ namespace Cryptotrader.Config
         public LogLevel LogLevel { get; set; }
         [JsonPropertyName("path")]
         public string FilePath { get; set; }
+        [JsonPropertyName("filename")]
+        public string FileName { get; set; }
 
         public ILogDestination GetDestination()
         {
             switch (DestinationType)
             {
                 case LogDestinationType.File:
-                    return new FileLogDestination(FilePath, LogLevel);
+                    return new FileLogDestination(FilePath, FileName, LogLevel);
                 case LogDestinationType.Console:
                     return new ConsoleLogDestination(LogLevel);
                 default:

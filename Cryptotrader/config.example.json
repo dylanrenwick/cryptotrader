@@ -7,7 +7,8 @@
     {
       "type": "file",
       "level": "debug",
-      "path": "log\\logfile.log"
+      "path": "log/",
+      "filename":  "cryptotrader_{0:yyyy-MM-dd_HH-mm}.log"
     }
   ],
   "api": {
