@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http;
 using System.Web;
 
@@ -84,7 +84,7 @@ namespace Cryptotrader.Api
             }
             catch (HttpRequestException ex)
             {
-                if (IsRetryable(ex.StatusCode.Value))
+                if (IsRetryable(ex.StatusCode))
                 {
                     if (RetryLimit > 0 && retries >= RetryLimit)
                         throw new HttpRequestException(
