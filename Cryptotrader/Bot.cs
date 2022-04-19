@@ -12,6 +12,7 @@ namespace Cryptotrader
 
         public bool IsSimulation { get; private set; }
 
+        private DateTime startTime;
         private DateTime lastStateChange;
 
         private BotStateBehavior initialState;
@@ -114,6 +115,8 @@ namespace Cryptotrader
 
         private async Task RunBot()
         {
+            startTime = DateTime.Now;
+
             TimeSpan interval = TimeSpan.FromSeconds(config.UpdateInterval);
 
             while (activeState != null)
@@ -128,9 +131,20 @@ namespace Cryptotrader
 
         private async Task Update()
         {
+            DebugLog();
+
             await exchange.UpdatePrices();
 
             await activeState.Update(exchange, profile);
+        }
+
+        private void DebugLog()
+        {
+            TimeSpan runtime = DateTime.Now.Subtract(startTime);
+            TimeSpan stateTime = DateTime.Now.Subtract(lastStateChange);
+
+            log.Debug($"Cryptotrader bot running {runtime:g}{(IsSimulation?" [Simulation]":"")}");
+            log.Debug($"Current state is {activeState?.State} ({stateTime:g})");
         }
     }
 }
