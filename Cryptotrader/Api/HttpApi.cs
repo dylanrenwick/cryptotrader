@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Web;
 
 using Cryptotrader.Logging;
@@ -10,10 +11,16 @@ namespace Cryptotrader.Api
         protected readonly string apiUrl;
         protected readonly Logger log;
 
+        public int RetryLimit { get; set; }
+        public int RetryDelay { get; set; }
+
         public HttpApi(Logger logger, string url)
         {
             log = logger;
             apiUrl = url;
+
+            RetryLimit = 3;
+            RetryDelay = 5000;
         }
 
         public async Task<HttpResponseMessage> GetRequest(string endpoint, Dictionary<string, string> queryData)
@@ -49,10 +56,7 @@ namespace Cryptotrader.Api
 
         public async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request)
         {
-            using HttpClient web = new();
-
-            web.BaseAddress = new Uri(apiUrl);
-            return await web.SendAsync(request);
+            return await TryRequest(request);
         }
 
         protected HttpRequestMessage BuildMessage(string endpoint, HttpMethod method, string content)
@@ -64,6 +68,42 @@ namespace Cryptotrader.Api
             request.Content = content;
 
             return request;
+        }
+
+        private async Task<HttpResponseMessage> TryRequest(HttpRequestMessage request, int retries = 0)
+        {
+            HttpResponseMessage response = null;
+
+            using HttpClient web = new();
+
+            web.BaseAddress = new Uri(apiUrl);
+
+            try
+            {
+                response = await web.SendAsync(request);
+            }
+            catch (HttpRequestException ex)
+            {
+                if (retries < RetryLimit && IsRetryable(ex.StatusCode.Value))
+                {
+                    await Task.Delay(RetryDelay);
+                    return await TryRequest(request, retries++);
+                }
+            }
+
+            return response;
+        }
+
+        private static readonly HttpStatusCode[] retryableCodes = new[]
+        {
+            HttpStatusCode.ServiceUnavailable,
+            HttpStatusCode.RequestTimeout,
+            HttpStatusCode.GatewayTimeout
+        };
+
+        private static bool IsRetryable(HttpStatusCode? statusCode)
+        {
+            return statusCode != null && retryableCodes.Contains(statusCode.Value);
         }
     }
 }
