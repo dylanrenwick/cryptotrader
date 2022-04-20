@@ -33,7 +33,7 @@
 
         public void Exception(Exception ex)
         {
-            string message = $"Caught unhandled exception of type {ex.GetType()}, terminating.";
+            string message = $"Caught unhandled exception of type {ex.GetType()}, terminating.\n{ex.Message}\n{ex.StackTrace}";
             Log(message, LogLevel.Crit);
             throw new CriticalException(message, ex);
         }
