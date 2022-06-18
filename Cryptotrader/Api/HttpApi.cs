@@ -55,7 +55,11 @@ namespace Cryptotrader.Api
 
         public async Task<HttpResponseMessage> SendRequest(HttpRequestMessage request)
         {
-            return await TryRequest(request);
+            using HttpClient web = new();
+
+            web.BaseAddress = new Uri(apiUrl);
+
+            return await web.SendAsync(request);
         }
 
         protected HttpRequestMessage BuildMessage(string endpoint, HttpMethod method, string content)
@@ -67,15 +71,6 @@ namespace Cryptotrader.Api
             request.Content = content;
 
             return request;
-        }
-
-        private async Task<HttpResponseMessage> TryRequest(HttpRequestMessage request, int retries = 0)
-        {
-            using HttpClient web = new();
-
-            web.BaseAddress = new Uri(apiUrl);
-
-            return await web.SendAsync(request);
         }
     }
 }
