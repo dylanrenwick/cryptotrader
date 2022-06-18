@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http;
 using System.Web;
 
@@ -72,46 +71,11 @@ namespace Cryptotrader.Api
 
         private async Task<HttpResponseMessage> TryRequest(HttpRequestMessage request, int retries = 0)
         {
-            HttpResponseMessage response = null;
-
             using HttpClient web = new();
 
             web.BaseAddress = new Uri(apiUrl);
 
-            try
-            {
-                response = await web.SendAsync(request);
-            }
-            catch (HttpRequestException ex)
-            {
-                if (IsRetryable(ex.StatusCode))
-                {
-                    if (RetryLimit > 0 && retries >= RetryLimit)
-                        throw new HttpRequestException(
-                            $"Failed to get response after {retries} retries",
-                            ex.InnerException,
-                            ex.StatusCode);
-
-                    log.Warn($"Failed to get '{request.RequestUri}' ({retries + 1}/{RetryLimit})");
-                    await Task.Delay(RetryDelay);
-                    return await TryRequest(request, retries++);
-                }
-                else throw;
-            }
-
-            return response;
-        }
-
-        private static readonly HttpStatusCode[] retryableCodes = new[]
-        {
-            HttpStatusCode.ServiceUnavailable,
-            HttpStatusCode.RequestTimeout,
-            HttpStatusCode.GatewayTimeout
-        };
-
-        private static bool IsRetryable(HttpStatusCode? statusCode)
-        {
-            return statusCode != null && retryableCodes.Contains(statusCode.Value);
+            return await web.SendAsync(request);
         }
     }
 }
