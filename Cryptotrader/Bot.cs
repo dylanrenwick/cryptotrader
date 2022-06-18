@@ -140,8 +140,16 @@ namespace Cryptotrader
         {
             DebugLog();
 
-            await exchange.UpdatePrices();
-            await UpdateState();
+            if (await exchange.UpdatePrices())
+            {
+                await UpdateState();
+            }
+            else
+            {
+                log.Warn($"Could not connect to exchange API");
+                ReconnectingBehavior newState = new(activeState);
+                SetState(newState);
+            }
         }
 
         private async Task UpdateState()

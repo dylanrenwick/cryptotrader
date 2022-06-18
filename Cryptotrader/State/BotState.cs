@@ -7,6 +7,7 @@
         WaitingToSell,
         Selling,
         WaitingToBuy,
-        Buying
+        Buying,
+        Reconnecting
     }
 }
