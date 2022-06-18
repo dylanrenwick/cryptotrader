@@ -145,12 +145,6 @@ namespace Cryptotrader.Api.Coinbase
             return request;
         }
 
-        private async Task<CoinbaseApiError> ParseErrorMessage(HttpResponseMessage response)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return Json.Deserialize<CoinbaseApiError>(json);
-        }
-
         private string Signature(string endpoint, string body, string timestamp, HttpMethod method)
         {
             StringBuilder sb = new();
@@ -182,7 +176,7 @@ namespace Cryptotrader.Api.Coinbase
             else wallets.Add(currency, wallet);
         }
 
-        private async Task<Result<T>> HandleApiResponse<T>(
+        private static async Task<Result<T>> HandleApiResponse<T>(
             HttpResponseMessage response,
             Func<HttpResponseMessage, Task<T>> successPredicate)
         {
@@ -196,6 +190,12 @@ namespace Cryptotrader.Api.Coinbase
                 var error = await ParseErrorMessage(response);
                 return Result<T>.Failure(error.Message);
             }
+        }
+
+        private static async Task<CoinbaseApiError> ParseErrorMessage(HttpResponseMessage response)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            return Json.Deserialize<CoinbaseApiError>(json);
         }
     }
 }

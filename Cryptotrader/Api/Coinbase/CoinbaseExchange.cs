@@ -6,16 +6,13 @@ namespace Cryptotrader.Api.Coinbase
     {
         private const string API_URL = "https://api.pro.coinbase.com";
 
-        private string cash;
-        private string coin;
-
-        private string product => $"{coin}-{cash}";
+        private readonly string product;
 
         public decimal CurrentBuyPrice => Math.Round(historicalBuyPrices.Current, 2) + 0.00m;
         public decimal CurrentSellPrice => Math.Round(historicalSellPrices.Current, 2) + 0.00m;
 
-        private HistoricalValue<decimal> historicalBuyPrices;
-        private HistoricalValue<decimal> historicalSellPrices;
+        private readonly HistoricalValue<decimal> historicalBuyPrices = new();
+        private readonly HistoricalValue<decimal> historicalSellPrices = new();
 
         private readonly CoinbaseApi api;
         private readonly Logger log;
@@ -30,9 +27,6 @@ namespace Cryptotrader.Api.Coinbase
         ) {
             log = logger;
 
-            historicalBuyPrices = new HistoricalValue<decimal>();
-            historicalSellPrices = new HistoricalValue<decimal>();
-
             if (string.IsNullOrWhiteSpace(key)
                 || string.IsNullOrWhiteSpace(secret)
                 || string.IsNullOrWhiteSpace(passphrase))
@@ -40,8 +34,7 @@ namespace Cryptotrader.Api.Coinbase
                 log.Crit("API info empty or invalid");
             }
 
-            this.cash = cash.ToUpper();
-            this.coin = coin.ToUpper();
+            product = $"{coin}-{cash}".ToUpper();
 
             api = new(log, API_URL, key, secret, passphrase);
         }

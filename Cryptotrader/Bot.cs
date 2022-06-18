@@ -18,14 +18,14 @@ namespace Cryptotrader
         private BotStateBehavior initialState;
         private BotStateBehavior activeState;
 
-        private ICryptoExchange exchange;
+        private readonly ICryptoExchange exchange;
 
-        private Logger log;
+        private readonly Logger log;
         private BotConfig config;
-        private BotProfile profile => config.Profile;
+        private BotProfile profile;
 
-        private HistoricalValue<decimal> historicalBuyPrices = new();
-        private HistoricalValue<decimal> historicalSellPrices = new();
+        private readonly HistoricalValue<decimal> historicalBuyPrices = new();
+        private readonly HistoricalValue<decimal> historicalSellPrices = new();
 
         public Bot(
             Logger logger,
@@ -61,6 +61,7 @@ namespace Cryptotrader
         public void LoadConfig(BotConfig config)
         {
             this.config = config;
+            this.profile = config.Profile;
         }
 
         public decimal GetBuyProfit()
