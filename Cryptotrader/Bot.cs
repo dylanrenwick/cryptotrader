@@ -7,8 +7,8 @@ namespace Cryptotrader
 {
     public class Bot
     {
-        public decimal LastBoughtAt => Math.Round(historicalBuyPrices.Current, 2) + 0.00m;
-        public decimal LastSoldAt => Math.Round(historicalSellPrices.Current, 2) + 0.00m;
+        public decimal LastBoughtAt => Math.Round(historicalBuyPrices.Current, 2);
+        public decimal LastSoldAt => Math.Round(historicalSellPrices.Current, 2);
 
         public bool IsSimulation { get; private set; }
 
@@ -138,7 +138,6 @@ namespace Cryptotrader
         private async Task Update()
         {
             DebugLog();
-
 
             await exchange.UpdatePrices();
             await UpdateState();
