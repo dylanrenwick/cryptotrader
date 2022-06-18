@@ -37,7 +37,7 @@ namespace Cryptotrader.State
                 {
                     log.Info($"Rebound amount of {reboundAmount * 100}% is greater than threshold of {profile.FallEndThreshold * 100}%");
                     log.Info("Price has stopped falling, buying crypto");
-                    Bot.BuyCrypto();
+                    await Bot.BuyCrypto();
                 }
             }
         }

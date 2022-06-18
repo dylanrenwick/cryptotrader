@@ -78,20 +78,20 @@ namespace Cryptotrader
             return Math.Round(profitPercent, 4);
         }
 
-        public void BuyCrypto()
+        public async Task BuyCrypto()
         {
             log.Alert($"Buying ${profile.LiquidValue} in crypto");
             if (IsSimulation) return;
 
-            exchange.PlaceBuyOrder(profile.LiquidValue);
+            await exchange.PlaceBuyOrder(profile.LiquidValue);
         }
 
-        public void SellCrypto()
+        public async Task SellCrypto()
         {
             log.Alert($"Selling ${profile.LiquidValue} in crypto");
             if (IsSimulation) return;
 
-            exchange.PlaceSellOrder(profile.LiquidValue);
+            await exchange.PlaceSellOrder(profile.LiquidValue);
         }
 
         public void SetState(BotStateBehavior newState)
@@ -138,6 +138,7 @@ namespace Cryptotrader
         private async Task Update()
         {
             DebugLog();
+
 
             await exchange.UpdatePrices();
             await UpdateState();
