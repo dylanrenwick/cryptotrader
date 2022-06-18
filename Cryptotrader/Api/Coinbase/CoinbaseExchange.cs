@@ -55,7 +55,7 @@ namespace Cryptotrader.Api.Coinbase
                 log.Alert("Api connected and authenticated. Active wallets:");
                 foreach ((var currency, var wallet) in wallets)
                 {
-                    if (wallet.Balance > 0) log.Info($"{currency.PadRight(6)}> {wallet.Balance}");
+                    if (wallet.Balance > 0) log.Info($"{currency,-6}> {wallet.Balance}");
                 }
             }
         }
