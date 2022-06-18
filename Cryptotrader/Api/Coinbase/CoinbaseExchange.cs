@@ -60,7 +60,7 @@ namespace Cryptotrader.Api.Coinbase
             }
         }
 
-        public async Task UpdatePrices()
+        public async Task<bool> UpdatePrices()
         {
             log.Info("Updating prices");
             Result<CoinbaseProductTicker> response = await api.GetProductTicker(product);
@@ -70,6 +70,8 @@ namespace Cryptotrader.Api.Coinbase
                 historicalBuyPrices.Set(productTicker.BuyPrice);
                 historicalSellPrices.Set(productTicker.SellPrice);
             }
+
+            return response.IsSuccess;
         }
 
         public async Task<IOrder> PlaceBuyOrder(decimal amount)

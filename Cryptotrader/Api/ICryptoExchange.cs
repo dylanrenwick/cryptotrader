@@ -5,7 +5,7 @@
         public decimal CurrentBuyPrice { get; }
         public decimal CurrentSellPrice { get; }
 
-        public Task UpdatePrices();
+        public Task<bool> UpdatePrices();
 
         public Task<IOrder> PlaceBuyOrder(decimal amount);
         public Task<IOrder> PlaceSellOrder(decimal amount);
