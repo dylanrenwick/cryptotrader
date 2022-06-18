@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http;
 using System.Web;
 
@@ -59,7 +60,24 @@ namespace Cryptotrader.Api
 
             web.BaseAddress = new Uri(apiUrl);
 
-            return await web.SendAsync(request);
+            HttpResponseMessage response;
+            try
+            {
+                response = await web.SendAsync(request);
+            }
+            catch (HttpRequestException e)
+            {
+                log.Warn($"Request failed: {e.Message}");
+                // Return generic fail status to indicate request failed
+                response = new(HttpStatusCode.InternalServerError);
+            }
+            catch (TaskCanceledException)
+            {
+                log.Warn($"Request timed out");
+                response = new(HttpStatusCode.RequestTimeout);
+            }
+
+            return response;
         }
 
         protected HttpRequestMessage BuildMessage(string endpoint, HttpMethod method, string content)
