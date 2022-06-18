@@ -33,22 +33,15 @@ namespace Cryptotrader.State
 
         public static BotStateBehavior BehaviorFromBotState(BotState state)
         {
-            switch(state)
+            return state switch
             {
-                case Startup:
-                    return new StartupBehavior();
-                case WaitingToSell:
-                    return new WaitingToSellBehavior();
-                case Selling:
-                    return new SellingBehavior();
-                case WaitingToBuy:
-                    return new WaitingToBuyBehavior();
-                case Buying:
-                    return new BuyingBehavior();
-                case None:
-                default:
-                    return null;
-            }
+                Startup => new StartupBehavior(),
+                WaitingToSell => new WaitingToSellBehavior(),
+                Selling => new SellingBehavior(),
+                WaitingToBuy => new WaitingToBuyBehavior(),
+                Buying => new BuyingBehavior(),
+                _ => null,
+            };
         }
     }
 }
