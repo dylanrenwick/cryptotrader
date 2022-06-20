@@ -32,10 +32,10 @@ namespace Cryptotrader.State
             {
                 log.Debug($"Price of {api.CurrentBuyPrice} is higher than low of {lowestPrice}, checking rebound threshold");
                 decimal reboundAmount = GetRebound(api);
-                log.Debug($"Price has rebounded by {reboundAmount * 100}% Threshold is {profile.FallEndThreshold * 100}%");
+                log.Debug($"Price has rebounded by {reboundAmount * 100}% Threshold is {profile.FallEndThreshold}%");
                 if (reboundAmount >= profile.FallEndThreshold)
                 {
-                    log.Info($"Rebound amount of {reboundAmount * 100}% is greater than threshold of {profile.FallEndThreshold * 100}%");
+                    log.Info($"Rebound amount of {reboundAmount * 100}% is greater than threshold of {profile.FallEndThreshold}%");
                     log.Info("Price has stopped falling, buying crypto");
                     await Bot.BuyCrypto();
                 }
