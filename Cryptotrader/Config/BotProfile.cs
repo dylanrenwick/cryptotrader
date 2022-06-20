@@ -6,6 +6,11 @@ namespace Cryptotrader.Config
 {
     public class BotProfile
     {
+        [JsonPropertyName("last_buy_price")]
+        public decimal? LastBuyPrice { get; set; }
+        [JsonPropertyName("last_sell_price")]
+        public decimal? LastSellPrice { get; set; }
+
         [JsonPropertyName("liquid_value")]
         public decimal LiquidValue { get; set; }
 
