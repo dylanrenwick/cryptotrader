@@ -195,7 +195,12 @@ namespace Cryptotrader.Api.Coinbase
         private static async Task<CoinbaseApiError> ParseErrorMessage(HttpResponseMessage response)
         {
             var json = await response.Content.ReadAsStringAsync();
-            return Json.Deserialize<CoinbaseApiError>(json);
+            if (json.Length > 0)
+                return Json.Deserialize<CoinbaseApiError>(json);
+            else return new()
+            {
+                Message = "Could not reach Coinbase API"
+            };
         }
     }
 }
