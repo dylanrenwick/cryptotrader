@@ -36,6 +36,7 @@ namespace Cryptotrader.State
                     log.Info($"Rebound amount of {reboundAmount}% is greater than threshold of {profile.RiseEndThreshold}%");
                     log.Info("Price has stopped rising, selling crypto");
                     await Bot.SellCrypto();
+                    Bot.SetState(new WaitingToBuyBehavior());
                 }
             }
         }
