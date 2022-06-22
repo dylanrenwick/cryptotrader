@@ -140,7 +140,7 @@ namespace Cryptotrader
         {
             DebugLog();
 
-            if (await exchange.UpdatePrices())
+            if (activeState.State == BotState.Reconnecting || await exchange.UpdatePrices())
             {
                 await UpdateState();
             }
