@@ -25,7 +25,7 @@ namespace Cryptotrader.Logging
 
         protected override void LogToTarget(LogMessage message)
         {
-            fileWriter.Write(message);
+            fileWriter.Write(message.ToString(false));
             fileWriter.Flush();
         }
 

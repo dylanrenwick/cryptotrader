@@ -1,46 +1,53 @@
-﻿namespace Cryptotrader.Logging
+﻿using System.Text;
+
+namespace Cryptotrader.Logging
 {
     public class LogMessage
     {
         public DateTime Timestamp { get; } = DateTime.UtcNow;
-        public LogLevel Level { get; set; }
-        public string Message { get; set; }
-        public string Label { get; set; }
+        public LogLevel Level { get; init; }
+        public string Message { get; init; }
+        public string Label { get; init; }
 
         public override string ToString()
+            => ToString(true);
+        public string ToString(bool useANSICodes)
         {
             string[] lines = Message.Split('\n');
-            return string.Join(
-                "\n",
-                lines.Select(
-                    (l, i) =>
-                        i == 0
-                        ? FormatHeadLine(l)
-                        : FormatMultiline(l)
-                )
-            ) + "\n";
+            StringBuilder sb = new();
+            sb.AppendLine(FormatHeadLine(lines[0], useANSICodes));
+            for (int i = 1; i < lines.Length; i++)
+            {
+                sb.AppendLine(FormatMultiline(lines[i]));
+            }
+            return sb.ToString();
         }
 
-        private string FormatHeadLine(string line)
+        private string FormatHeadLine(string line, bool useANSICodes)
         {
-            return $"{ResetCode}{FormattedTimestamp}{FormattedLevel}{FormattedLabel}> {line}";
+            StringBuilder sb = new();
+            if (useANSICodes) sb.Append(ResetCode);
+            sb.Append(FormattedTimestamp);
+            sb.Append(FormatLevel(useANSICodes));
+            sb.Append(FormattedLabel);
+            sb.Append("> ");
+            sb.Append(line);
+            return sb.ToString();
         }
         private string FormatMultiline(string line)
         {
             return $"\t{new string(' ', FormattedTimestamp.Length)} {FormattedLabel}> {line}";
         }
 
-        private string FormattedTimestamp => Timestamp.ToString("yyyy-MM-dd HH-mm-ss.ffff");
-        private string FormattedLevel
+        private string FormatLevel(bool useANSICodes)
         {
-            get
-            {
-                string formattedLevel = Level.ToString().PadLeft(6).ToUpper();
-                if (levelColors.TryGetValue(Level, out ConsoleColor color))
-                    return ColorText(formattedLevel, color);
-                else return formattedLevel;
-            }
+            string formattedLevel = Level.ToString().PadLeft(6).ToUpper();
+            if (useANSICodes && levelColors.TryGetValue(Level, out ConsoleColor color))
+                return ColorText(formattedLevel, color);
+            else return formattedLevel;
         }
+
+        private string FormattedTimestamp => Timestamp.ToString("yyyy-MM-dd HH-mm-ss.ffff");
         private string FormattedLabel => $"|{Label.PadRight(3, ' ').Substring(0, 3).ToUpper()}|";
 
         private static readonly Dictionary<LogLevel, ConsoleColor> levelColors = new Dictionary<LogLevel, ConsoleColor>()
