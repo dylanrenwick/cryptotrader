@@ -12,7 +12,7 @@ namespace Cryptotrader.State
         {
             decimal profit = Bot.GetSellProfit();
             decimal targetPrice = Math.Round(Bot.LastBoughtAt * (1 + profile.GainThreshold / 100), 2);
-            log.Debug($"Price is ${api.CurrentSellPrice}, {profit}% higher than last buy price of ${Bot.LastBoughtAt}");
+            log.Debug($"Price is ${api.CurrentSellPrice}, {Math.Abs(profit)}% {(profit > 0 ? "higher" : "lower")} than last buy price of ${Bot.LastBoughtAt}");
             log.Debug($"Configured threshold is {profile.GainThreshold}%, which will be met at a price of ${targetPrice}");
             log.Info($"Price: ${api.CurrentSellPrice}/${targetPrice} Loss: {profit}%/{profile.GainThreshold}%");
             if (profit > profile.GainThreshold)
