@@ -82,6 +82,7 @@ namespace Cryptotrader
         public async Task BuyCrypto()
         {
             log.Alert($"Buying ${profile.LiquidValue} in crypto");
+            historicalBuyPrices.Set(exchange.CurrentBuyPrice);
             if (IsSimulation) return;
 
             await exchange.PlaceBuyOrder(profile.LiquidValue);
@@ -90,6 +91,7 @@ namespace Cryptotrader
         public async Task SellCrypto()
         {
             log.Alert($"Selling ${profile.LiquidValue} in crypto");
+            historicalSellPrices.Set(exchange.CurrentSellPrice);
             if (IsSimulation) return;
 
             await exchange.PlaceSellOrder(profile.LiquidValue);
