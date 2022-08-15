@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using Cryptotrader.State;
 
@@ -10,6 +10,14 @@ namespace Cryptotrader.Config
         public decimal? LastBuyPrice { get; set; }
         [JsonPropertyName("last_sell_price")]
         public decimal? LastSellPrice { get; set; }
+
+        [JsonPropertyName("cash")]
+        public string Cash { get; set; }
+        [JsonPropertyName("coin")]
+        public string Coin { get; set; }
+
+        [JsonIgnore]
+        public string Product => $"{Coin}-{Cash}";
 
         [JsonPropertyName("liquid_value")]
         public decimal LiquidValue { get; set; }

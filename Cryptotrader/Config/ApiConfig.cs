@@ -10,10 +10,5 @@ namespace Cryptotrader.Config
         public string ApiSecret { get; set; }
         [JsonPropertyName("passphrase")]
         public string ApiPassphrase { get; set; }
-
-        [JsonPropertyName("cash")]
-        public string Cash { get; set; }
-        [JsonPropertyName("coin")]
-        public string Coin { get; set; }
     }
 }

@@ -6,8 +6,6 @@ namespace Cryptotrader.Api.Coinbase
     {
         private const string API_URL = "https://api.pro.coinbase.com";
 
-        private readonly string product;
-
         public decimal CurrentBuyPrice => Math.Round(historicalBuyPrices.Current, 2) + 0.00m;
         public decimal CurrentSellPrice => Math.Round(historicalSellPrices.Current, 2) + 0.00m;
 
@@ -23,9 +21,7 @@ namespace Cryptotrader.Api.Coinbase
             Logger logger,
             string key,
             string secret,
-            string passphrase,
-            string cash,
-            string coin
+            string passphrase
         ) {
             log = logger;
 
@@ -35,8 +31,6 @@ namespace Cryptotrader.Api.Coinbase
             {
                 log.Crit("API info empty or invalid");
             }
-
-            product = $"{coin}-{cash}".ToUpper();
 
             api = new(log, API_URL, key, secret, passphrase);
         }
@@ -56,7 +50,7 @@ namespace Cryptotrader.Api.Coinbase
             }
         }
 
-        public async Task<bool> UpdatePrices()
+        public async Task<bool> UpdatePrices(string product)
         {
             log.Info("Updating prices");
             Result<CoinbaseProductTicker> response = await api.GetProductTicker(product);
@@ -70,12 +64,12 @@ namespace Cryptotrader.Api.Coinbase
             return response.IsSuccess;
         }
 
-        public async Task<IOrder> PlaceBuyOrder(decimal amount)
+        public async Task<IOrder> PlaceBuyOrder(string product, decimal amount)
         {
             var response = await api.PlaceOrder(amount, "buy", product);
             return response.Unwrap();
         }
-        public async Task<IOrder> PlaceSellOrder(decimal amount)
+        public async Task<IOrder> PlaceSellOrder(string product, decimal amount)
         {
             var response = await api.PlaceOrder(amount, "sell", product);
             return response.Unwrap();

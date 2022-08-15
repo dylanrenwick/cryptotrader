@@ -85,7 +85,7 @@ namespace Cryptotrader
             historicalBuyPrices.Set(exchange.CurrentBuyPrice);
             if (IsSimulation) return;
 
-            await exchange.PlaceBuyOrder(profile.LiquidValue);
+            await exchange.PlaceBuyOrder(profile.Product, profile.LiquidValue);
         }
 
         public async Task SellCrypto()
@@ -94,7 +94,7 @@ namespace Cryptotrader
             historicalSellPrices.Set(exchange.CurrentSellPrice);
             if (IsSimulation) return;
 
-            await exchange.PlaceSellOrder(profile.LiquidValue);
+            await exchange.PlaceSellOrder(profile.Product, profile.LiquidValue);
         }
 
         public void SetState(BotStateBehavior newState)
@@ -142,7 +142,7 @@ namespace Cryptotrader
         {
             DebugLog();
 
-            if (activeState.State == BotState.Reconnecting || await exchange.UpdatePrices())
+            if (activeState.State == BotState.Reconnecting || await exchange.UpdatePrices(profile.Product))
             {
                 await UpdateState();
             }

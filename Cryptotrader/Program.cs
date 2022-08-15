@@ -77,9 +77,7 @@ namespace Cryptotrader
                 apiLogger,
                 apiConfig.ApiKey,
                 apiConfig.ApiSecret,
-                apiConfig.ApiPassphrase,
-                apiConfig.Cash,
-                apiConfig.Coin
+                apiConfig.ApiPassphrase
             );
 
             await coinbaseDataProvider.LoadWallets();
