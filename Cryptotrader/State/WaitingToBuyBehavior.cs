@@ -8,6 +8,7 @@ namespace Cryptotrader.State
     {
         public override BotState State => WaitingToBuy;
 
+#pragma warning disable CS1998
         public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
             decimal profit = Bot.GetBuyProfit();
