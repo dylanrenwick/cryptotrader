@@ -17,6 +17,8 @@ namespace Cryptotrader.Api.Coinbase
         private readonly CoinbaseApi api;
         private readonly Logger log;
 
+        private readonly Dictionary<string, decimal> walletBalances = new();
+
         public CoinbaseExchange(
             Logger logger,
             string key,
@@ -46,9 +48,10 @@ namespace Cryptotrader.Api.Coinbase
             {
                 var wallets = result.Value;
                 log.Alert("Api connected and authenticated. Active wallets:");
-                foreach ((var currency, var wallet) in wallets)
+                foreach ((var currency, var wallet) in wallets.Where(kvp => kvp.Value.Balance > 0))
                 {
-                    if (wallet.Balance > 0) log.Info($"{currency,-6}> {wallet.Balance}");
+                    log.Info($"{currency,-6}> {wallet.Balance}");
+                    walletBalances.Add(currency, wallet.Balance);
                 }
             }
         }
@@ -76,6 +79,13 @@ namespace Cryptotrader.Api.Coinbase
         {
             var response = await api.PlaceOrder(amount, "sell", product);
             return response.Unwrap();
+        }
+
+        public async Task<decimal> GetWalletBalance(string currency, bool forceRefresh)
+        {
+            if (forceRefresh) await LoadWallets();
+            if (walletBalances.ContainsKey(currency)) return walletBalances[currency];
+            else return 0m;
         }
 
         public async Task<IOrder> GetLatestOrder()
