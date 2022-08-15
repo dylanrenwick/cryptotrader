@@ -17,7 +17,7 @@ namespace Cryptotrader.State
 
         public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
-            if (await api.UpdatePrices())
+            if (await api.UpdatePrices(profile.Product))
             {
                 log.Alert($"Successfully reconnected to exchange API after {attempts} attempts");
                 Bot.SetState(lastState);
