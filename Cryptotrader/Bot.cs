@@ -15,7 +15,6 @@ namespace Cryptotrader
         private DateTime startTime;
         private DateTime lastStateChange;
 
-        private BotStateBehavior initialState;
         private BotStateBehavior activeState;
 
         private readonly ICryptoExchange exchange;
@@ -40,12 +39,7 @@ namespace Cryptotrader
         public async Task Startup()
         {
             if (config == null) throw new InvalidOperationException("Bot config not loaded!");
-            if (initialState == null)
-            {
-                if (profile.InitialState == BotState.None) throw new InvalidOperationException("Initial State not set!");
-                initialState = BotStateBehavior.BehaviorFromBotState(profile.InitialState);
-            }
-            SetState(initialState);
+            SetState(new StartupBehavior(profile.InitialState));
 
             log.Alert("Cryptotrader starting up");
 

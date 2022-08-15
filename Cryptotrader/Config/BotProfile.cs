@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 using Cryptotrader.State;
 
@@ -34,6 +34,6 @@ namespace Cryptotrader.Config
 
 
         [JsonPropertyName("initial_state")]
-        public BotState InitialState { get; set; }
+        public BotState? InitialState { get; set; }
     }
 }

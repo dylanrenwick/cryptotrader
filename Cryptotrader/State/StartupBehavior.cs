@@ -8,53 +8,45 @@ namespace Cryptotrader.State
     {
         public override BotState State => Startup;
 
-        private decimal lastOrderValue;
-        private OrderType lastOrderType;
+        private readonly BotState? initialState;
+
+        public StartupBehavior(BotState? initialState)
+        {
+            this.initialState = initialState;
+        }
 
         public override async Task Update(ICryptoExchange api, BotProfile profile)
         {
-            if (profile.LastBuyPrice.HasValue && profile.LastSellPrice.HasValue)
-            {
-                log.Crit($"Cannot determine initial state");
-            }
-            else if (profile.LastBuyPrice.HasValue)
-            {
-                lastOrderValue = profile.LastBuyPrice.Value;
-                lastOrderType = OrderType.Buy;
-            }
-            else if (profile.LastSellPrice.HasValue)
-            {
-                lastOrderValue = profile.LastSellPrice.Value;
-                lastOrderType = OrderType.Sell;
-            }
-            else
-            {
-                await FetchLatestOrder(api);
-            }
+            decimal currentPrice = api.CurrentSellPrice;
 
-            BotStateBehavior nextState = null;
-            switch (lastOrderType)
-            {
-                case OrderType.Buy:
-                    Bot.SetLastBuyPrice(lastOrderValue);
-                    nextState = new WaitingToSellBehavior();
-                    break;
-                case OrderType.Sell:
-                    Bot.SetLastSellPrice(lastOrderValue);
-                    nextState = new WaitingToBuyBehavior();
-                    break;
-            }
+            Bot.SetLastBuyPrice(currentPrice);
+            Bot.SetLastSellPrice(currentPrice);
+
+            BotStateBehavior nextState = CreateInitialState(currentPrice);
+
+            if (nextState == null) nextState = await GetStateByCoinBalance(api, profile);
 
             await Bot.SetStateAndRun(nextState);
         }
 
-        private async Task FetchLatestOrder(ICryptoExchange api)
+        private static async Task<BotStateBehavior> GetStateByCoinBalance(ICryptoExchange api, BotProfile profile)
         {
-            IOrder order = await api.GetLatestOrder();
-            string coin = order.Currency.Split('-')[0];
-            lastOrderValue = order.Value / order.Amount;
-            log.Info($"Detected last {order.OrderType} of {order.Amount} {coin} for ${Math.Round(order.Value, 2)} at ${Math.Round(lastOrderValue, 2)} each");
-            lastOrderType = order.OrderType;
+            decimal coinBalance = await api.GetWalletBalance(profile.Coin);
+
+            if (coinBalance > 0.02m) return new SellingBehavior(coinBalance);
+            else return new BuyingBehavior(coinBalance);
+        }
+
+        private BotStateBehavior CreateInitialState(decimal currentPrice)
+        {
+            return initialState switch
+            {
+                WaitingToSell => new WaitingToSellBehavior(),
+                Selling => new SellingBehavior(currentPrice),
+                WaitingToBuy => new WaitingToBuyBehavior(),
+                Buying => new BuyingBehavior(currentPrice),
+                _ => null,
+            };
         }
     }
 }
