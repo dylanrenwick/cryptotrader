@@ -30,18 +30,5 @@ namespace Cryptotrader.State
         {
             writer.WriteString("state", Enum.GetName(typeof(BotState), State));
         }
-
-        public static BotStateBehavior BehaviorFromBotState(BotState state)
-        {
-            return state switch
-            {
-                Startup => new StartupBehavior(),
-                WaitingToSell => new WaitingToSellBehavior(),
-                Selling => new SellingBehavior(),
-                WaitingToBuy => new WaitingToBuyBehavior(),
-                Buying => new BuyingBehavior(),
-                _ => null,
-            };
-        }
     }
 }
